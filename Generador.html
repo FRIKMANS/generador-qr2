@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de QR para Google Forms</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>Generar QR de Cotización</h1>
+  
+  <div class="form-container">
+    <!-- Campo: Nombre del vendedor -->
+    <label for="nombre">Nombre del vendedor:</label>
+    <select id="nombre">
+      <option value="">Selecciona un vendedor</option>
+      <option value="Luis Alfonso">Luis Alfonso</option>
+      <option value="Victor Hugo">Victor Hugo</option>
+      <option value="César Guzmán ">César Guzmán </option>
+      <option value="Pedro Meseño">Pedro Meseño</option>
+      <option value="Raúl Moreno">Raúl Moreno</option>
+      <option value="Alex Ávila">Alex  Ávila</option>
+    </select>
+
+    <!-- Campo: Tipo de movimiento -->
+    <label for="movimiento">Tipo de movimiento:</label>
+    <select id="movimiento">
+      <option value="">Selecciona un tipo</option>
+      <option value="Convertidor catalítico">Convertidor catalítico</option>
+      <option value="Convertidor + rechazo">Convertidor + rechazo</option>
+      <option value="Holograma(0)">Holograma(0)</option>
+    </select>
+
+    <!-- Campo: Costo -->
+    <label for="costo">Costo:</label>
+    <input type="number" id="costo" placeholder="Ej. 1500">
+
+    <button onclick="generarQR()">Generar QR</button>
+  </div>
+
+  <!-- Tarjeta donde aparecerá el QR -->
+  <div id="qrCard" class="qr-card" style="display:none;">
+    <h2>Tu código QR</h2>
+    <div id="qrContainer"></div>
+  </div>
+
+  <!-- Librería QRCodeStyling -->
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

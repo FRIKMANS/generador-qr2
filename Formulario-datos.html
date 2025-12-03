@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Cotización</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #8ACC34, #44ABA8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      width: 350px;
+      border-top: 6px solid #8ACC34;
+    }
+    
+    h2 {
+      color: #733298;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    
+    .campo {
+      margin-bottom: 20px;
+    }
+    
+    .campo label {
+      display: block;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 5px;
+    }
+    
+    .campo input,
+    .campo select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+      font-size: 15px;
+      background-color: #f8f8f8;
+      pointer-events: none;
+    }
+    
+    .campo.bloqueado input {
+      background-color: #f0f0f0;
+      color: #666;
+    }
+    
+    .mensaje {
+      background-color: #e8f5e9;
+      border: 1px solid #4caf50;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+    }
+    
+    .mensaje.error {
+      background-color: #ffebee;
+      border-color: #f44336;
+    }
+    
+    .boton-registrar {
+      width: 100%;
+      background-color: #44ABA8;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    
+    .boton-registrar:hover {
+      background-color: #733298;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Registro de Cotización</h2>
+    
+    <div class="campo bloqueado">
+      <label for="nombre">Vendedor:</label>
+      <input type="text" id="nombre" readonly>
+    </div>
+    
+    <div class="campo bloqueado">
+      <label for="movimiento">Tipo de movimiento:</label>
+      <input type="text" id="movimiento" readonly>
+    </div>
+    
+    <div class="campo bloqueado">
+      <label for="costo">Costo:</label>
+      <input type="text" id="costo" readonly>
+    </div>
+      
+    <div class="campo">
+      <label for="comentarios">Comentarios adicionales:</label>
+      <input type="text" id="comentarios" placeholder="Opcional">
+    </div>
+    
+    <button class="boton-registrar" onclick="enviarDatos()">Registrar en Sistema</button>
+    
+    <div id="mensaje" class="mensaje"></div>
+  </div>
+
+  <script>
+    // Obtener parámetros de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Cargar datos desde la URL
+    document.getElementById('nombre').value = decodeURIComponent(urlParams.get('nombre') || '');
+    document.getElementById('movimiento').value = decodeURIComponent(urlParams.get('movimiento') || '');
+    document.getElementById('costo').value = decodeURIComponent(urlParams.get('costo') || '');
+    
+    // Función para enviar datos
+    async function enviarDatos() {
+      const datos = {
+        nombre: document.getElementById('nombre').value,
+        movimiento: document.getElementById('movimiento').value,
+        costo: document.getElementById('costo').value,
+        estado: document.getElementById('estado').value,
+        comentarios: document.getElementById('comentarios').value,
+        token: 'U2VydmljaW9QYXJhUGF0eQ=='
+      };
+      
+      const mensajeDiv = document.getElementById('mensaje');
+      mensajeDiv.style.display = 'none';
+      
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzTyV6O_Q8bocUQk-4bquWxjey4qZyqlV4ee7uQAKb9VXiPW3J0jTwVLJEpExo37lQTMg/exec', {
+          method: 'POST',
+          mode: 'no-cors', // Para evitar problemas
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(datos)
+        });
+        
+        mensajeDiv.textContent = '✅ Datos registrados exitosamente';
+        mensajeDiv.className = 'mensaje';
+        mensajeDiv.style.display = 'block';
+        
+        // Deshabilitar botón después de enviar
+        document.querySelector('.boton-registrar').disabled = true;
+        document.querySelector('.boton-registrar').textContent = 'Registrado ✓';
+        
+      } catch (error) {
+        mensajeDiv.textContent = '❌ Error al registrar datos: ' + error.message;
+        mensajeDiv.className = 'mensaje error';
+        mensajeDiv.style.display = 'block';
+      }
+    }
+    
+    // Verificar que todos los datos necesarios estén presentes
+    window.onload = function() {
+      const nombre = document.getElementById('nombre').value;
+      const movimiento = document.getElementById('movimiento').value;
+      const costo = document.getElementById('costo').value;
+      
+      if (!nombre || !movimiento || !costo) {
+        document.getElementById('mensaje').textContent = '❌ Datos incompletos. Asegúrate de escanear un QR válido.';
+        document.getElementById('mensaje').className = 'mensaje error';
+        document.getElementById('mensaje').style.display = 'block';
+        document.querySelector('.boton-registrar').disabled = true;
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+:root {
+  --verde: #8ACC34;
+  --azul: #44ABA8;
+  --morado: #733298;
+  --blanco: #ffffff;
+  --gris: #f8f8f8;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, var(--verde), var(--azul));
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+h1 {
+  color: white;
+  margin-bottom: 20px;
+  text-shadow: 1px 2px 6px rgba(0,0,0,0.2);
+}
+
+.form-container {
+  background: var(--blanco);
+  padding: 25px 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  width: 320px;
+  border-top: 6px solid var(--verde);
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-top: 10px;
+  color: #222;
+}
+
+input{
+  width: 93%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 8px;
+  border: 2px solid var(--verde);
+  font-size: 15px;
+  background-color: var(--gris);
+  transition: all 0.3s ease;
+  appearance: none;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 8px;
+  border: 2px solid var(--verde);
+  font-size: 15px;
+  background-color: var(--gris);
+  transition: all 0.3s ease;
+  appearance: none;
+}
+
+select {
+  background-image: linear-gradient(45deg, transparent 50%, var(--verde) 50%), 
+                    linear-gradient(135deg, var(--verde) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--azul);
+  box-shadow: 0 0 6px rgba(68, 171, 168, 0.4);
+  outline: none;
+}
+
+button {
+  width: 100%;
+  background-color: var(--verde);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 15px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: var(--azul);
+}
+
+.qr-card {
+  margin-top: 25px;
+  background-color: var(--blanco);
+  border: 3px solid var(--verde);
+  border-radius: 20px;
+  padding: 20px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.qr-card h2 {
+  color: var(--morado);
+  margin-bottom: 10px;
+}
+
+#qrContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
