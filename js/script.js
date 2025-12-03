@@ -10,7 +10,7 @@ function generarQR() {
     return;
   }
 
-  const baseURL = "https://frikmans.github.io/generador-qr2/Formulario-datos.html";
+  const baseURL = "https://frikmans.github.io/generador-qr2/formulario-datos.html";
   const enlace = `${baseURL}?nombre=${nombre}&movimiento=${movimiento}&costo=${costo}&token=U2VydmljaW9QYXJhUGF0eQ==`;
 
   console.log("URL generada:", enlace);
@@ -58,7 +58,7 @@ function copiarEnlace() {
     return;
   }
   
-  const enlace = `https://tudominio.com/formulario-datos.html?nombre=${nombre}&movimiento=${movimiento}&costo=${costo}&token=TU_TOKEN_SECRETO`;
+  const enlace = `https://frikmans.github.io/generador-qr2/formulario-datos.html?nombre=${nombre}&movimiento=${movimiento}&costo=${costo}&token=U2VydmljaW9QYXJhUGF0eQ==`;
   
   navigator.clipboard.writeText(enlace)
     .then(() => alert("Enlace copiado al portapapeles"))
