@@ -70,12 +70,6 @@ h1 {
   font-size: 15px;
 }
 
-.campo label .icono {
-  font-size: 18px;
-  width: 24px;
-  text-align: center;
-}
-
 /* Inputs y selects generales */
 input, select {
   width: 100%;
@@ -111,12 +105,17 @@ select:focus {
 
 /* Campos bloqueados (solo lectura) */
 .campo.bloqueado input {
-  background-color: var(--gris-oscuro);
-  color: #555;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid var(--verde);
+  font-size: 15px;
+  background-color: var(--gris);
+  transition: all 0.3s ease;
+  appearance: none;
+  box-sizing: border-box;
+  font-family: inherit;
   pointer-events: none;
-  font-weight: 600;
-  border-color: #d0d0d0;
-  border-width: 1px;
 }
 
 /* ========== BOTONES ========== */
