@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Cotización</title>
   <link rel="stylesheet" href="css/style.css">
+  
   <style>
-    /* Estilos específicos solo para esta página */
+ 
     .form-container.datos {
       position: relative;
     }
@@ -29,38 +30,39 @@
       margin-left: 5px;
     }
   </style>
+
 </head>
 <body>
   <div class="form-container datos">
-    <div class="badge-token">🔐 Seguro</div>
-    <h2>📋 Registro de Cotización</h2>
+    <div class="badge-token">Seguro</div>
+    <h2>Registro de Cotización</h2>
     
     <div class="info-qr">
-      ℹ️ Datos del QR escaneado
+      Datos del QR escaneado
     </div>
     
     <div class="campo bloqueado">
-      <label><span class="icono">👤</span> Vendedor:</label>
+      <label>Vendedor:</label>
       <input type="text" id="nombre" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label><span class="icono">🔄</span> Tipo de movimiento:</label>
+      <label>Tipo de movimiento:</label>
       <input type="text" id="movimiento" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label><span class="icono">🚗</span> Vehículo:</label>
+      <label>Vehículo:</label>
       <input type="text" id="vehiculo" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label><span class="icono">💰</span> Costo:</label>
+      <label>Costo:</label>
       <input type="text" id="costo" readonly>
     </div>
     
     <button class="boton-registrar" onclick="enviarDatos()" id="btnEnviar">
-      <span class="icono">✅</span> Registrar en Sistema
+      Registrar en Sistema
     </button>
     
     <div id="mensaje" class="mensaje"></div>
@@ -85,7 +87,7 @@
     if (tokenURL !== TOKEN_SECRETO) {
       document.body.innerHTML = `
         <div class="form-container datos">
-          <h2 style="color: var(--rojo);">🔒 Acceso No Autorizado</h2>
+          <h2 style="color: var(--rojo);">Acceso No Autorizado</h2>
           <p>Este QR no es válido o ha expirado.</p>
           <p class="texto-pequeno">Genera un nuevo código QR desde el sistema.</p>
         </div>
@@ -100,7 +102,7 @@
       
       btn.disabled = true;
       btn.classList.add('cargando');
-      btn.innerHTML = '<span class="icono">⏳</span> Enviando...';
+      btn.innerHTML = 'Enviando...';
       mensajeDiv.style.display = 'none';
       
       // Enviar los 4 campos principales + token
@@ -118,7 +120,7 @@
         const respuesta = await enviarConForm(datos);
         
         if (respuesta.success) {
-          mensajeDiv.innerHTML = '✅ <strong>Cotización registrada</strong><br>';
+          mensajeDiv.innerHTML = '<strong>Cotización registrada</strong><br>';
           if (respuesta.data) {
             mensajeDiv.innerHTML += `
               <div class="texto-pequeno">
@@ -130,7 +132,7 @@
           }
           mensajeDiv.className = 'mensaje';
           btn.classList.remove('cargando');
-          btn.innerHTML = '<span class="icono">✅</span> Registrado';
+          btn.innerHTML = 'Registrado';
           btn.style.backgroundColor = 'var(--verde-exito)';
           
           // Auto-cerrar sugerencia
@@ -142,11 +144,11 @@
         }
       } catch (error) {
         console.error('Error:', error);
-        mensajeDiv.innerHTML = '❌ <strong>Error al registrar</strong><br><small>' + error.message + '</small>';
+        mensajeDiv.innerHTML = '<strong>Error al registrar</strong><br><small>' + error.message + '</small>';
         mensajeDiv.className = 'mensaje error';
         btn.classList.remove('cargando');
         btn.disabled = false;
-        btn.innerHTML = '<span class="icono">🔄</span> Intentar nuevamente';
+        btn.innerHTML = 'Intentar nuevamente';
       } finally {
         mensajeDiv.style.display = 'block';
       }
@@ -220,7 +222,7 @@
         document.getElementById('btnEnviar').disabled = true;
         console.error('Datos incompletos:', {nombre, movimiento, vehiculo, costo});
       } else {
-        console.log('✅ Formulario cargado correctamente');
+        console.log('Formulario cargado correctamente');
       }
     };
   </script>
