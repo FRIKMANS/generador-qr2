@@ -4,154 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Cotización</title>
+  <link rel="stylesheet" href="css/style.css">
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #8ACC34, #44ABA8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
+    /* Estilos específicos solo para esta página */
+    .form-container.datos {
+      position: relative;
     }
     
-    .form-container {
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-      width: 100%;
-      max-width: 400px;
-      border-top: 6px solid #8ACC34;
-    }
-    
-    h2 {
-      color: #733298;
-      text-align: center;
-      margin-bottom: 25px;
-    }
-    
-    .campo {
-      margin-bottom: 20px;
-    }
-    
-    .campo label {
-      display: block;
-      font-weight: 600;
-      color: #222;
-      margin-bottom: 5px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .campo input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 2px solid #ddd;
-      font-size: 15px;
-      background-color: #f8f8f8;
-    }
-    
-    .campo.bloqueado input {
-      background-color: #f0f0f0;
-      color: #666;
-      pointer-events: none;
-      font-weight: bold;
-      border-color: #8ACC34;
-    }
-    
-    .mensaje {
-      background-color: #e8f5e9;
-      border: 1px solid #4caf50;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 20px;
-      text-align: center;
-      display: none;
-      font-weight: 500;
-    }
-    
-    .mensaje.error {
-      background-color: #ffebee;
-      border-color: #f44336;
-    }
-    
-    .boton-registrar {
-      width: 100%;
-      background-color: #44ABA8;
+    .badge-token {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--azul);
       color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 16px;
-      transition: 0.3s;
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
     }
     
-    .boton-registrar:hover {
-      background-color: #733298;
-    }
-    
-    .boton-registrar:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-    
-    .info-qr {
-      background-color: #e3f2fd;
-      border: 1px solid #2196f3;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      text-align: center;
-      color: #0d47a1;
-    }
-    
-    .icono {
-      font-size: 18px;
+    .campo .valor {
+      font-weight: 600;
+      color: var(--morado);
+      margin-left: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="form-container">
-    <h2>Registro de Cotización</h2>
+  <div class="form-container datos">
+    <div class="badge-token">🔐 Seguro</div>
+    <h2>📋 Registro de Cotización</h2>
     
     <div class="info-qr">
-      Datos del QR escaneado
+      ℹ️ Datos del QR escaneado
     </div>
     
     <div class="campo bloqueado">
-      <label>Vendedor:</label>
+      <label><span class="icono">👤</span> Vendedor:</label>
       <input type="text" id="nombre" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label>Tipo de movimiento:</label>
+      <label><span class="icono">🔄</span> Tipo de movimiento:</label>
       <input type="text" id="movimiento" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label>Vehículo:</label>
+      <label><span class="icono">🚗</span> Vehículo:</label>
       <input type="text" id="vehiculo" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label>Costo:</label>
+      <label><span class="icono">💰</span> Costo:</label>
       <input type="text" id="costo" readonly>
     </div>
     
     <button class="boton-registrar" onclick="enviarDatos()" id="btnEnviar">
-      Registrar en Sistema
+      <span class="icono">✅</span> Registrar en Sistema
     </button>
     
     <div id="mensaje" class="mensaje"></div>
@@ -160,12 +69,12 @@
   <script>
     // Configuración
     const TOKEN_SECRETO = "U2VydmljaW9QYXJhUGF0eQ==";
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw42oJydEKi2aPWXuTf9GmXhawKXFAI4bABlr_KdiDmqEqc3p2nIkGL5WpCIDjFOkML/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2swOMCt-fGEpEOe7Iual0toIoTjLUqUkilrlDwjabMigAN4G1VEK5XUyxDoZpzDbC/exec";
     
-    // Obtener datos del QR (AHORA CON VEHÍCULO)
+    // Obtener datos del QR
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Cargar datos (4 campos ahora)
+    // Cargar datos
     document.getElementById('nombre').value = decodeURIComponent(urlParams.get('nombre') || '');
     document.getElementById('movimiento').value = decodeURIComponent(urlParams.get('movimiento') || '');
     document.getElementById('vehiculo').value = decodeURIComponent(urlParams.get('vehiculo') || '');
@@ -175,10 +84,10 @@
     // Verificar token
     if (tokenURL !== TOKEN_SECRETO) {
       document.body.innerHTML = `
-        <div class="form-container">
-          <h2 style="color: #d32f2f;">Acceso No Autorizado</h2>
+        <div class="form-container datos">
+          <h2 style="color: var(--rojo);">🔒 Acceso No Autorizado</h2>
           <p>Este QR no es válido o ha expirado.</p>
-          <p style="font-size: 14px; color: #666;">Genera un nuevo código QR desde el sistema.</p>
+          <p class="texto-pequeno">Genera un nuevo código QR desde el sistema.</p>
         </div>
       `;
       throw new Error('Token inválido');
@@ -190,6 +99,7 @@
       const mensajeDiv = document.getElementById('mensaje');
       
       btn.disabled = true;
+      btn.classList.add('cargando');
       btn.innerHTML = '<span class="icono">⏳</span> Enviando...';
       mensajeDiv.style.display = 'none';
       
@@ -202,25 +112,26 @@
         token: TOKEN_SECRETO
       };
       
-      console.log('Enviando datos (con vehículo):', datos);
+      console.log('📤 Enviando datos:', datos);
       
       try {
         const respuesta = await enviarConForm(datos);
         
         if (respuesta.success) {
-          mensajeDiv.innerHTML = '<strong>Cotización registrada</strong><br>';
+          mensajeDiv.innerHTML = '✅ <strong>Cotización registrada</strong><br>';
           if (respuesta.data) {
             mensajeDiv.innerHTML += `
-              <small>
+              <div class="texto-pequeno">
                 ID: ${respuesta.data.fila} | 
                 ${respuesta.data.fecha} ${respuesta.data.hora}<br>
                 Vehículo: ${respuesta.data.vehiculo}
-              </small>
+              </div>
             `;
           }
           mensajeDiv.className = 'mensaje';
-          btn.innerHTML = 'Registrado';
-          btn.style.backgroundColor = '#4caf50';
+          btn.classList.remove('cargando');
+          btn.innerHTML = '<span class="icono">✅</span> Registrado';
+          btn.style.backgroundColor = 'var(--verde-exito)';
           
           // Auto-cerrar sugerencia
           setTimeout(() => {
@@ -231,10 +142,11 @@
         }
       } catch (error) {
         console.error('Error:', error);
-        mensajeDiv.innerHTML = '<strong>Error al registrar</strong><br><small>' + error.message + '</small>';
+        mensajeDiv.innerHTML = '❌ <strong>Error al registrar</strong><br><small>' + error.message + '</small>';
         mensajeDiv.className = 'mensaje error';
+        btn.classList.remove('cargando');
         btn.disabled = false;
-        btn.innerHTML = 'Intentar nuevamente';
+        btn.innerHTML = '<span class="icono">🔄</span> Intentar nuevamente';
       } finally {
         mensajeDiv.style.display = 'block';
       }
@@ -249,7 +161,7 @@
         form.target = 'frameRespuesta';
         form.style.display = 'none';
         
-        // Agregar los 5 campos necesarios
+        // Agregar los campos
         Object.keys(datos).forEach(key => {
           const input = document.createElement('input');
           input.type = 'hidden';
@@ -302,13 +214,13 @@
       const costo = document.getElementById('costo').value;
       
       if (!nombre || !movimiento || !vehiculo || !costo) {
-        document.getElementById('mensaje').textContent = 'Datos incompletos. Escanea un QR válido.';
+        document.getElementById('mensaje').textContent = '⚠️ Datos incompletos. Escanea un QR válido.';
         document.getElementById('mensaje').className = 'mensaje error';
         document.getElementById('mensaje').style.display = 'block';
         document.getElementById('btnEnviar').disabled = true;
         console.error('Datos incompletos:', {nombre, movimiento, vehiculo, costo});
       } else {
-        console.log('Formulario cargado correctamente con vehículo:', vehiculo);
+        console.log('✅ Formulario cargado correctamente');
       }
     };
   </script>
