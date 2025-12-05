@@ -14,14 +14,16 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
+  padding: 20px;
 }
 
 h1 {
   color: white;
   margin-bottom: 20px;
   text-shadow: 1px 2px 6px rgba(0,0,0,0.2);
+  text-align: center;
 }
 
 .form-container {
@@ -29,8 +31,10 @@ h1 {
   padding: 25px 30px;
   border-radius: 20px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  width: 320px;
+  width: 100%;
+  max-width: 350px;
   border-top: 6px solid var(--verde);
+  margin-bottom: 20px;
 }
 
 label {
@@ -38,9 +42,12 @@ label {
   font-weight: 600;
   margin-top: 10px;
   color: #222;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-input{
+input, select {
   width: 93%;
   padding: 10px;
   margin-top: 6px;
@@ -54,19 +61,8 @@ input{
 
 select {
   width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  border-radius: 8px;
-  border: 2px solid var(--verde);
-  font-size: 15px;
-  background-color: var(--gris);
-  transition: all 0.3s ease;
-  appearance: none;
-}
-
-select {
   background-image: linear-gradient(45deg, transparent 50%, var(--verde) 50%), 
-                    linear-gradient(135deg, var(--verde) 50%, transparent 50%);
+                  linear-gradient(135deg, var(--verde) 50%, transparent 50%);
   background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
@@ -84,12 +80,13 @@ button {
   background-color: var(--verde);
   color: white;
   border: none;
-  padding: 10px;
+  padding: 12px;
   border-radius: 10px;
   margin-top: 15px;
   cursor: pointer;
   font-weight: bold;
   transition: 0.3s;
+  font-size: 16px;
 }
 
 button:hover {
@@ -102,7 +99,8 @@ button:hover {
   border: 3px solid var(--verde);
   border-radius: 20px;
   padding: 20px;
-  width: 320px;
+  width: 100%;
+  max-width: 350px;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
@@ -116,4 +114,23 @@ button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 260px;
+}
+
+.requerido::after {
+  content: " *";
+  color: #f44336;
+}
+
+.icono-input {
+  position: relative;
+}
+
+.icono-input::before {
+  content: "🚗";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
 }

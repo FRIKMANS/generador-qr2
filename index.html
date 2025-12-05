@@ -3,27 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador de QR para Google Forms</title>
+  <title>Generador de QR para Cotizaciones</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>Generar QR de Cotización</h1>
+  <h1>🚗 Generar QR de Cotización</h1>
   
   <div class="form-container">
     <!-- Campo: Nombre del vendedor -->
-    <label for="nombre">Nombre del vendedor:</label>
+    <label for="nombre">👤 Nombre del vendedor:</label>
     <select id="nombre">
       <option value="">Selecciona un vendedor</option>
       <option value="Luis Alfonso">Luis Alfonso</option>
       <option value="Victor Hugo">Victor Hugo</option>
-      <option value="César Guzmán ">César Guzmán </option>
+      <option value="César Guzmán">César Guzmán</option>
       <option value="Pedro Meseño">Pedro Meseño</option>
       <option value="Raúl Moreno">Raúl Moreno</option>
-      <option value="Alex Ávila">Alex  Ávila</option>
+      <option value="Alex Ávila">Alex Ávila</option>
     </select>
 
     <!-- Campo: Tipo de movimiento -->
-    <label for="movimiento">Tipo de movimiento:</label>
+    <label for="movimiento">🔄 Tipo de movimiento:</label>
     <select id="movimiento">
       <option value="">Selecciona un tipo</option>
       <option value="Convertidor catalítico">Convertidor catalítico</option>
@@ -31,17 +31,30 @@
       <option value="Holograma(0)">Holograma(0)</option>
     </select>
 
-    <!-- Campo: Costo -->
-    <label for="costo">Costo:</label>
-    <input type="number" id="costo" placeholder="Ej. 1500">
+    <!-- NUEVO CAMPO: Vehículo -->
+    <label for="vehiculo">🚗 Vehículo:</label>
+    <input type="text" id="vehiculo" placeholder="Ej: Nissan Sentra 2020" required>
 
-    <button onclick="generarQR()">Generar QR</button>
+    <!-- Campo: Costo -->
+    <label for="costo">💰 Costo:</label>
+    <input type="number" id="costo" placeholder="Ej. 1500" required>
+
+    <button onclick="generarQR()">🔄 Generar QR</button>
+    
+    <div style="margin-top: 10px; text-align: center;">
+      <button onclick="copiarEnlace()" style="background-color: #733298; width: auto; padding: 8px 15px; font-size: 14px;">
+        📋 Copiar Enlace
+      </button>
+    </div>
   </div>
 
   <!-- Tarjeta donde aparecerá el QR -->
   <div id="qrCard" class="qr-card" style="display:none;">
-    <h2>Tu código QR</h2>
+    <h2>📱 Tu código QR</h2>
     <div id="qrContainer"></div>
+    <p style="font-size: 14px; color: #666; margin-top: 10px;">
+      Escanea este código con un teléfono para registrar la cotización
+    </p>
   </div>
 
   <!-- Librería QRCodeStyling -->

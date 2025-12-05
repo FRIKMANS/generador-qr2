@@ -3,15 +3,16 @@ let qr;
 function generarQR() {
   const nombre = encodeURIComponent(document.getElementById("nombre").value);
   const movimiento = encodeURIComponent(document.getElementById("movimiento").value);
+  const vehiculo = encodeURIComponent(document.getElementById("vehiculo").value);
   const costo = encodeURIComponent(document.getElementById("costo").value);
 
-  if (!nombre || !movimiento || !costo) {
-    alert("Por favor completa todos los campos.");
+  if (!nombre || !movimiento || !vehiculo || !costo) {
+    alert("Por favor completa TODOS los campos.");
     return;
   }
 
   const baseURL = "https://frikmans.github.io/generador-qr2/formulario-datos.html";
-  const enlace = `${baseURL}?nombre=${nombre}&movimiento=${movimiento}&costo=${costo}&token=U2VydmljaW9QYXJhUGF0eQ==`;
+  const enlace = `${baseURL}?nombre=${nombre}&movimiento=${movimiento}&vehiculo=${vehiculo}&costo=${costo}&token=U2VydmljaW9QYXJhUGF0eQ==`;
 
   console.log("URL generada:", enlace);
 
@@ -51,14 +52,15 @@ function generarQR() {
 function copiarEnlace() {
   const nombre = encodeURIComponent(document.getElementById("nombre").value);
   const movimiento = encodeURIComponent(document.getElementById("movimiento").value);
+  const vehiculo = encodeURIComponent(document.getElementById("vehiculo").value);
   const costo = encodeURIComponent(document.getElementById("costo").value);
   
-  if (!nombre || !movimiento || !costo) {
-    alert("Completa los campos primero");
+  if (!nombre || !movimiento || !vehiculo || !costo) {
+    alert("Completa todos los campos primero");
     return;
   }
   
-  const enlace = `https://frikmans.github.io/generador-qr2/formulario-datos.html?nombre=${nombre}&movimiento=${movimiento}&costo=${costo}&token=U2VydmljaW9QYXJhUGF0eQ==`;
+  const enlace = `https://frikmans.github.io/generador-qr2/formulario-datos.html?nombre=${nombre}&movimiento=${movimiento}&vehiculo=${vehiculo}&costo=${costo}&token=U2VydmljaW9QYXJhUGF0eQ==`;
   
   navigator.clipboard.writeText(enlace)
     .then(() => alert("Enlace copiado al portapapeles"))

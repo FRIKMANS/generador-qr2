@@ -41,6 +41,9 @@
       font-weight: 600;
       color: #222;
       margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     
     .campo input {
@@ -56,6 +59,8 @@
       background-color: #f0f0f0;
       color: #666;
       pointer-events: none;
+      font-weight: bold;
+      border-color: #8ACC34;
     }
     
     .mensaje {
@@ -66,6 +71,7 @@
       margin-top: 20px;
       text-align: center;
       display: none;
+      font-weight: 500;
     }
     
     .mensaje.error {
@@ -78,12 +84,17 @@
       background-color: #44ABA8;
       color: white;
       border: none;
-      padding: 12px;
+      padding: 14px;
       border-radius: 10px;
       cursor: pointer;
       font-weight: bold;
       font-size: 16px;
       transition: 0.3s;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     
     .boton-registrar:hover {
@@ -94,33 +105,54 @@
       background-color: #ccc;
       cursor: not-allowed;
     }
+    
+    .info-qr {
+      background-color: #e3f2fd;
+      border: 1px solid #2196f3;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-align: center;
+      color: #0d47a1;
+    }
+    
+    .icono {
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
   <div class="form-container">
-    <h2>Registro de Cotización</h2>
+    <h2>📋 Registro de Cotización</h2>
+    
+    <div class="info-qr">
+      ℹ️ Datos del QR escaneado
+    </div>
     
     <div class="campo bloqueado">
-      <label for="nombre">Vendedor:</label>
+      <label><span class="icono">👤</span> Vendedor:</label>
       <input type="text" id="nombre" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label for="movimiento">Tipo de movimiento:</label>
+      <label><span class="icono">🔄</span> Tipo de movimiento:</label>
       <input type="text" id="movimiento" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label for="costo">Costo:</label>
+      <label><span class="icono">🚗</span> Vehículo:</label>
+      <input type="text" id="vehiculo" readonly>
+    </div>
+    
+    <div class="campo bloqueado">
+      <label><span class="icono">💰</span> Costo:</label>
       <input type="text" id="costo" readonly>
     </div>
     
-    <div class="campo">
-      <label for="comentarios">Comentarios adicionales (opcional):</label>
-      <input type="text" id="comentarios" placeholder="Escribe comentarios si es necesario">
-    </div>
-    
-    <button class="boton-registrar" onclick="enviarDatos()" id="btnEnviar">Registrar Cotización</button>
+    <button class="boton-registrar" onclick="enviarDatos()" id="btnEnviar">
+      <span class="icono">✅</span> Registrar en Sistema
+    </button>
     
     <div id="mensaje" class="mensaje"></div>
   </div>
@@ -130,12 +162,13 @@
     const TOKEN_SECRETO = "U2VydmljaW9QYXJhUGF0eQ==";
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2swOMCt-fGEpEOe7Iual0toIoTjLUqUkilrlDwjabMigAN4G1VEK5XUyxDoZpzDbC/exec";
     
-    // Obtener datos de la URL
+    // Obtener datos del QR (AHORA CON VEHÍCULO)
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Cargar datos bloqueados
+    // Cargar datos (4 campos ahora)
     document.getElementById('nombre').value = decodeURIComponent(urlParams.get('nombre') || '');
     document.getElementById('movimiento').value = decodeURIComponent(urlParams.get('movimiento') || '');
+    document.getElementById('vehiculo').value = decodeURIComponent(urlParams.get('vehiculo') || '');
     document.getElementById('costo').value = decodeURIComponent(urlParams.get('costo') || '');
     const tokenURL = urlParams.get('token') || '';
     
@@ -144,70 +177,79 @@
       document.body.innerHTML = `
         <div class="form-container">
           <h2 style="color: #d32f2f;">🔒 Acceso No Autorizado</h2>
-          <p>No tienes permiso para acceder a este formulario.</p>
-          <p>Escanea un código QR válido.</p>
+          <p>Este QR no es válido o ha expirado.</p>
+          <p style="font-size: 14px; color: #666;">Genera un nuevo código QR desde el sistema.</p>
         </div>
       `;
+      throw new Error('Token inválido');
     }
     
-    // Función para enviar datos
+    // Función principal
     async function enviarDatos() {
       const btn = document.getElementById('btnEnviar');
       const mensajeDiv = document.getElementById('mensaje');
       
       btn.disabled = true;
-      btn.textContent = 'Enviando...';
+      btn.innerHTML = '<span class="icono">⏳</span> Enviando...';
       mensajeDiv.style.display = 'none';
       
-      // Preparar datos (sin estado)
+      // Enviar los 4 campos principales + token
       const datos = {
         nombre: document.getElementById('nombre').value,
         movimiento: document.getElementById('movimiento').value,
+        vehiculo: document.getElementById('vehiculo').value,
         costo: document.getElementById('costo').value,
-        comentarios: document.getElementById('comentarios').value || '',
         token: TOKEN_SECRETO
       };
       
-      console.log('Enviando datos:', datos);
+      console.log('📤 Enviando datos (con vehículo):', datos);
       
       try {
-        // Usar método que SÍ funciona (formulario oculto)
         const respuesta = await enviarConForm(datos);
         
         if (respuesta.success) {
-          mensajeDiv.textContent = '✅ ' + respuesta.message;
+          mensajeDiv.innerHTML = '✅ <strong>Cotización registrada</strong><br>';
+          if (respuesta.data) {
+            mensajeDiv.innerHTML += `
+              <small>
+                ID: ${respuesta.data.fila} | 
+                ${respuesta.data.fecha} ${respuesta.data.hora}<br>
+                Vehículo: ${respuesta.data.vehiculo}
+              </small>
+            `;
+          }
           mensajeDiv.className = 'mensaje';
-          btn.textContent = '✅ Registrado';
+          btn.innerHTML = '<span class="icono">✅</span> Registrado';
           btn.style.backgroundColor = '#4caf50';
           
-          // Opcional: Cerrar después de 3 segundos
+          // Auto-cerrar sugerencia
           setTimeout(() => {
-            mensajeDiv.innerHTML = '✅ Cotización registrada. <br>Puedes cerrar esta ventana.';
+            mensajeDiv.innerHTML += '<br><small>Esta ventana puede cerrarse</small>';
           }, 2000);
         } else {
-          throw new Error(respuesta.error || 'Error desconocido');
+          throw new Error(respuesta.error || 'Error en el servidor');
         }
       } catch (error) {
         console.error('Error:', error);
-        mensajeDiv.textContent = '❌ ' + error.message;
+        mensajeDiv.innerHTML = '❌ <strong>Error al registrar</strong><br><small>' + error.message + '</small>';
         mensajeDiv.className = 'mensaje error';
         btn.disabled = false;
-        btn.textContent = 'Intentar nuevamente';
+        btn.innerHTML = '<span class="icono">🔄</span> Intentar nuevamente';
       } finally {
         mensajeDiv.style.display = 'block';
       }
     }
     
-    // Método que funciona (formulario oculto)
+    // Método confiable (formulario oculto)
     function enviarConForm(datos) {
       return new Promise((resolve) => {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = SCRIPT_URL;
-        form.target = 'respuestaFrame';
+        form.target = 'frameRespuesta';
         form.style.display = 'none';
         
-        // Agregar campos
+        // Agregar los 5 campos necesarios
         Object.keys(datos).forEach(key => {
           const input = document.createElement('input');
           input.type = 'hidden';
@@ -218,7 +260,7 @@
         
         // Crear iframe para la respuesta
         const iframe = document.createElement('iframe');
-        iframe.name = 'respuestaFrame';
+        iframe.name = 'frameRespuesta';
         iframe.style.display = 'none';
         iframe.onload = function() {
           try {
@@ -228,21 +270,27 @@
               const respuesta = JSON.parse(texto);
               resolve(respuesta);
             } else {
-              resolve({ success: true, message: 'Datos enviados' });
+              resolve({ success: true, message: 'Datos enviados correctamente' });
             }
           } catch (e) {
             resolve({ success: true, message: 'Registro completado' });
           }
+          
+          // Limpiar después de 5 segundos
+          setTimeout(() => {
+            if (iframe.parentNode) document.body.removeChild(iframe);
+            if (form.parentNode) document.body.removeChild(form);
+          }, 5000);
         };
         
         document.body.appendChild(iframe);
         document.body.appendChild(form);
         form.submit();
         
-        // Timeout por si acaso
+        // Timeout por seguridad
         setTimeout(() => {
-          resolve({ success: true, message: 'Registro enviado' });
-        }, 5000);
+          resolve({ success: true, message: 'Registro enviado al sistema' });
+        }, 8000);
       });
     }
     
@@ -250,13 +298,17 @@
     window.onload = function() {
       const nombre = document.getElementById('nombre').value;
       const movimiento = document.getElementById('movimiento').value;
+      const vehiculo = document.getElementById('vehiculo').value;
       const costo = document.getElementById('costo').value;
       
-      if (!nombre || !movimiento || !costo) {
+      if (!nombre || !movimiento || !vehiculo || !costo) {
         document.getElementById('mensaje').textContent = '⚠️ Datos incompletos. Escanea un QR válido.';
         document.getElementById('mensaje').className = 'mensaje error';
         document.getElementById('mensaje').style.display = 'block';
         document.getElementById('btnEnviar').disabled = true;
+        console.error('Datos incompletos:', {nombre, movimiento, vehiculo, costo});
+      } else {
+        console.log('✅ Formulario cargado correctamente con vehículo:', vehiculo);
       }
     };
   </script>
