@@ -124,34 +124,34 @@
 </head>
 <body>
   <div class="form-container">
-    <h2>📋 Registro de Cotización</h2>
+    <h2>Registro de Cotización</h2>
     
     <div class="info-qr">
-      ℹ️ Datos del QR escaneado
+      Datos del QR escaneado
     </div>
     
     <div class="campo bloqueado">
-      <label><span class="icono">👤</span> Vendedor:</label>
+      <label>Vendedor:</label>
       <input type="text" id="nombre" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label><span class="icono">🔄</span> Tipo de movimiento:</label>
+      <label>Tipo de movimiento:</label>
       <input type="text" id="movimiento" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label><span class="icono">🚗</span> Vehículo:</label>
+      <label>Vehículo:</label>
       <input type="text" id="vehiculo" readonly>
     </div>
     
     <div class="campo bloqueado">
-      <label><span class="icono">💰</span> Costo:</label>
+      <label>Costo:</label>
       <input type="text" id="costo" readonly>
     </div>
     
     <button class="boton-registrar" onclick="enviarDatos()" id="btnEnviar">
-      <span class="icono">✅</span> Registrar en Sistema
+      Registrar en Sistema
     </button>
     
     <div id="mensaje" class="mensaje"></div>
@@ -176,7 +176,7 @@
     if (tokenURL !== TOKEN_SECRETO) {
       document.body.innerHTML = `
         <div class="form-container">
-          <h2 style="color: #d32f2f;">🔒 Acceso No Autorizado</h2>
+          <h2 style="color: #d32f2f;">Acceso No Autorizado</h2>
           <p>Este QR no es válido o ha expirado.</p>
           <p style="font-size: 14px; color: #666;">Genera un nuevo código QR desde el sistema.</p>
         </div>
@@ -202,13 +202,13 @@
         token: TOKEN_SECRETO
       };
       
-      console.log('📤 Enviando datos (con vehículo):', datos);
+      console.log('Enviando datos (con vehículo):', datos);
       
       try {
         const respuesta = await enviarConForm(datos);
         
         if (respuesta.success) {
-          mensajeDiv.innerHTML = '✅ <strong>Cotización registrada</strong><br>';
+          mensajeDiv.innerHTML = '<strong>Cotización registrada</strong><br>';
           if (respuesta.data) {
             mensajeDiv.innerHTML += `
               <small>
@@ -219,7 +219,7 @@
             `;
           }
           mensajeDiv.className = 'mensaje';
-          btn.innerHTML = '<span class="icono">✅</span> Registrado';
+          btn.innerHTML = 'Registrado';
           btn.style.backgroundColor = '#4caf50';
           
           // Auto-cerrar sugerencia
@@ -231,10 +231,10 @@
         }
       } catch (error) {
         console.error('Error:', error);
-        mensajeDiv.innerHTML = '❌ <strong>Error al registrar</strong><br><small>' + error.message + '</small>';
+        mensajeDiv.innerHTML = '<strong>Error al registrar</strong><br><small>' + error.message + '</small>';
         mensajeDiv.className = 'mensaje error';
         btn.disabled = false;
-        btn.innerHTML = '<span class="icono">🔄</span> Intentar nuevamente';
+        btn.innerHTML = 'Intentar nuevamente';
       } finally {
         mensajeDiv.style.display = 'block';
       }
@@ -302,13 +302,13 @@
       const costo = document.getElementById('costo').value;
       
       if (!nombre || !movimiento || !vehiculo || !costo) {
-        document.getElementById('mensaje').textContent = '⚠️ Datos incompletos. Escanea un QR válido.';
+        document.getElementById('mensaje').textContent = 'Datos incompletos. Escanea un QR válido.';
         document.getElementById('mensaje').className = 'mensaje error';
         document.getElementById('mensaje').style.display = 'block';
         document.getElementById('btnEnviar').disabled = true;
         console.error('Datos incompletos:', {nombre, movimiento, vehiculo, costo});
       } else {
-        console.log('✅ Formulario cargado correctamente con vehículo:', vehiculo);
+        console.log('Formulario cargado correctamente con vehículo:', vehiculo);
       }
     };
   </script>
