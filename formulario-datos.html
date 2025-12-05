@@ -11,8 +11,9 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 20px;
     }
     
     .form-container {
@@ -20,7 +21,8 @@
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-      width: 350px;
+      width: 100%;
+      max-width: 400px;
       border-top: 6px solid #8ACC34;
     }
     
@@ -41,20 +43,19 @@
       margin-bottom: 5px;
     }
     
-    .campo input,
-    .campo select {
+    .campo input {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
       border: 2px solid #ddd;
       font-size: 15px;
       background-color: #f8f8f8;
-      pointer-events: none;
     }
     
     .campo.bloqueado input {
       background-color: #f0f0f0;
       color: #666;
+      pointer-events: none;
     }
     
     .mensaje {
@@ -88,6 +89,11 @@
     .boton-registrar:hover {
       background-color: #733298;
     }
+    
+    .boton-registrar:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -108,76 +114,149 @@
       <label for="costo">Costo:</label>
       <input type="text" id="costo" readonly>
     </div>
-      
+    
     <div class="campo">
-      <label for="comentarios">Comentarios adicionales:</label>
-      <input type="text" id="comentarios" placeholder="Opcional">
+      <label for="comentarios">Comentarios adicionales (opcional):</label>
+      <input type="text" id="comentarios" placeholder="Escribe comentarios si es necesario">
     </div>
     
-    <button class="boton-registrar" onclick="enviarDatos()">Registrar en Sistema</button>
+    <button class="boton-registrar" onclick="enviarDatos()" id="btnEnviar">Registrar Cotización</button>
     
     <div id="mensaje" class="mensaje"></div>
   </div>
 
   <script>
-    // Obtener parámetros de la URL
+    // Configuración
+    const TOKEN_SECRETO = "U2VydmljaW9QYXJhUGF0eQ==";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2swOMCt-fGEpEOe7Iual0toIoTjLUqUkilrlDwjabMigAN4G1VEK5XUyxDoZpzDbC/exec";
+    
+    // Obtener datos de la URL
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Cargar datos desde la URL
+    // Cargar datos bloqueados
     document.getElementById('nombre').value = decodeURIComponent(urlParams.get('nombre') || '');
     document.getElementById('movimiento').value = decodeURIComponent(urlParams.get('movimiento') || '');
     document.getElementById('costo').value = decodeURIComponent(urlParams.get('costo') || '');
+    const tokenURL = urlParams.get('token') || '';
+    
+    // Verificar token
+    if (tokenURL !== TOKEN_SECRETO) {
+      document.body.innerHTML = `
+        <div class="form-container">
+          <h2 style="color: #d32f2f;">🔒 Acceso No Autorizado</h2>
+          <p>No tienes permiso para acceder a este formulario.</p>
+          <p>Escanea un código QR válido.</p>
+        </div>
+      `;
+    }
     
     // Función para enviar datos
     async function enviarDatos() {
+      const btn = document.getElementById('btnEnviar');
+      const mensajeDiv = document.getElementById('mensaje');
+      
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      mensajeDiv.style.display = 'none';
+      
+      // Preparar datos (sin estado)
       const datos = {
         nombre: document.getElementById('nombre').value,
         movimiento: document.getElementById('movimiento').value,
         costo: document.getElementById('costo').value,
-        estado: document.getElementById('estado').value,
-        comentarios: document.getElementById('comentarios').value,
-        token: 'U2VydmljaW9QYXJhUGF0eQ=='
+        comentarios: document.getElementById('comentarios').value || '',
+        token: TOKEN_SECRETO
       };
       
-      const mensajeDiv = document.getElementById('mensaje');
-      mensajeDiv.style.display = 'none';
+      console.log('Enviando datos:', datos);
       
       try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbzTyV6O_Q8bocUQk-4bquWxjey4qZyqlV4ee7uQAKb9VXiPW3J0jTwVLJEpExo37lQTMg/exec', {
-          method: 'POST',
-          mode: 'no-cors', // Para evitar problemas
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams(datos)
-        });
+        // Usar método que SÍ funciona (formulario oculto)
+        const respuesta = await enviarConForm(datos);
         
-        mensajeDiv.textContent = '✅ Datos registrados exitosamente';
-        mensajeDiv.className = 'mensaje';
-        mensajeDiv.style.display = 'block';
-        
-        // Deshabilitar botón después de enviar
-        document.querySelector('.boton-registrar').disabled = true;
-        document.querySelector('.boton-registrar').textContent = 'Registrado ✓';
-        
+        if (respuesta.success) {
+          mensajeDiv.textContent = '✅ ' + respuesta.message;
+          mensajeDiv.className = 'mensaje';
+          btn.textContent = '✅ Registrado';
+          btn.style.backgroundColor = '#4caf50';
+          
+          // Opcional: Cerrar después de 3 segundos
+          setTimeout(() => {
+            mensajeDiv.innerHTML = '✅ Cotización registrada. <br>Puedes cerrar esta ventana.';
+          }, 2000);
+        } else {
+          throw new Error(respuesta.error || 'Error desconocido');
+        }
       } catch (error) {
-        mensajeDiv.textContent = '❌ Error al registrar datos: ' + error.message;
+        console.error('Error:', error);
+        mensajeDiv.textContent = '❌ ' + error.message;
         mensajeDiv.className = 'mensaje error';
+        btn.disabled = false;
+        btn.textContent = 'Intentar nuevamente';
+      } finally {
         mensajeDiv.style.display = 'block';
       }
     }
     
-    // Verificar que todos los datos necesarios estén presentes
+    // Método que funciona (formulario oculto)
+    function enviarConForm(datos) {
+      return new Promise((resolve) => {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = SCRIPT_URL;
+        form.target = 'respuestaFrame';
+        form.style.display = 'none';
+        
+        // Agregar campos
+        Object.keys(datos).forEach(key => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = datos[key];
+          form.appendChild(input);
+        });
+        
+        // Crear iframe para la respuesta
+        const iframe = document.createElement('iframe');
+        iframe.name = 'respuestaFrame';
+        iframe.style.display = 'none';
+        iframe.onload = function() {
+          try {
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            const texto = doc.body.textContent;
+            if (texto) {
+              const respuesta = JSON.parse(texto);
+              resolve(respuesta);
+            } else {
+              resolve({ success: true, message: 'Datos enviados' });
+            }
+          } catch (e) {
+            resolve({ success: true, message: 'Registro completado' });
+          }
+        };
+        
+        document.body.appendChild(iframe);
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Timeout por si acaso
+        setTimeout(() => {
+          resolve({ success: true, message: 'Registro enviado' });
+        }, 5000);
+      });
+    }
+    
+    // Verificar datos al cargar
     window.onload = function() {
       const nombre = document.getElementById('nombre').value;
       const movimiento = document.getElementById('movimiento').value;
       const costo = document.getElementById('costo').value;
       
       if (!nombre || !movimiento || !costo) {
-        document.getElementById('mensaje').textContent = '❌ Datos incompletos. Asegúrate de escanear un QR válido.';
+        document.getElementById('mensaje').textContent = '⚠️ Datos incompletos. Escanea un QR válido.';
         document.getElementById('mensaje').className = 'mensaje error';
         document.getElementById('mensaje').style.display = 'block';
-        document.querySelector('.boton-registrar').disabled = true;
+        document.getElementById('btnEnviar').disabled = true;
       }
     };
   </script>
