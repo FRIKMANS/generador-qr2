@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>🚗 Generar QR de Cotización</h1>
+  <h1>Generar QR de Cotización</h1>
   
   <div class="form-container">
     <!-- Campo: Nombre del vendedor -->
@@ -23,7 +23,7 @@
     </select>
 
     <!-- Campo: Tipo de movimiento -->
-    <label for="movimiento">🔄 Tipo de movimiento:</label>
+    <label for="movimiento">Tipo de movimiento:</label>
     <select id="movimiento">
       <option value="">Selecciona un tipo</option>
       <option value="Convertidor catalítico">Convertidor catalítico</option>
@@ -32,25 +32,25 @@
     </select>
 
     <!-- NUEVO CAMPO: Vehículo -->
-    <label for="vehiculo">🚗 Vehículo:</label>
+    <label for="vehiculo">Vehículo:</label>
     <input type="text" id="vehiculo" placeholder="Ej: Nissan Sentra 2020" required>
 
     <!-- Campo: Costo -->
-    <label for="costo">💰 Costo:</label>
+    <label for="costo">Costo:</label>
     <input type="number" id="costo" placeholder="Ej. 1500" required>
 
-    <button onclick="generarQR()">🔄 Generar QR</button>
+    <button onclick="generarQR()">Generar QR</button>
     
     <div style="margin-top: 10px; text-align: center;">
       <button onclick="copiarEnlace()" style="background-color: #733298; width: auto; padding: 8px 15px; font-size: 14px;">
-        📋 Copiar Enlace
+        Copiar Enlace
       </button>
     </div>
   </div>
 
   <!-- Tarjeta donde aparecerá el QR -->
   <div id="qrCard" class="qr-card" style="display:none;">
-    <h2>📱 Tu código QR</h2>
+    <h2>Tu código QR</h2>
     <div id="qrContainer"></div>
     <p style="font-size: 14px; color: #666; margin-top: 10px;">
       Escanea este código con un teléfono para registrar la cotización
