@@ -48,21 +48,3 @@ function generarQR() {
     alert("Hubo un error al generar el código QR.");
   }
 }
-
-function copiarEnlace() {
-  const nombre = encodeURIComponent(document.getElementById("nombre").value);
-  const movimiento = encodeURIComponent(document.getElementById("movimiento").value);
-  const vehiculo = encodeURIComponent(document.getElementById("vehiculo").value);
-  const costo = encodeURIComponent(document.getElementById("costo").value);
-  
-  if (!nombre || !movimiento || !vehiculo || !costo) {
-    alert("Completa todos los campos primero");
-    return;
-  }
-  
-  const enlace = `https://frikmans.github.io/generador-qr2/formulario-datos.html?nombre=${nombre}&movimiento=${movimiento}&vehiculo=${vehiculo}&costo=${costo}&token=U2VydmljaW9QYXJhUGF0eQ==`;
-  
-  navigator.clipboard.writeText(enlace)
-    .then(() => alert("Enlace copiado al portapapeles"))
-    .catch(err => console.error("Error al copiar:", err));
-}
