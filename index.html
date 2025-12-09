@@ -6,6 +6,171 @@
   <title>Generador de QR para Cotizaciones</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+  
+    .share-panel {
+      display: none;
+      margin-top: 25px;
+      background: var(--blanco);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 350px;
+      border: 2px solid var(--verde);
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .share-panel h3 {
+      color: var(--morado);
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+    
+    .share-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+    
+    .share-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    
+    .share-btn i {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .share-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .share-btn:active {
+      transform: translateY(0);
+    }
+    
+    .whatsapp { background-color: #25D366; }
+    .email { background-color: #EA4335; }
+    .sms { background-color: #34B7F1; }
+    .copy { background-color: #733298; }
+    .download { background-color: #44ABA8; }
+    .telegram { background-color: #0088cc; }
+    
+    .share-link {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .share-link input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    .share-link button {
+      background-color: var(--verde);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .close-share {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #666;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    
+    .close-share:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .qr-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .qr-actions button {
+      width: auto;
+      padding: 10px 20px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-share {
+      background-color: var(--azul);
+    }
+    
+    .btn-share:hover {
+      background-color: #3a9c99;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Notificación flotante */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--verde-exito);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .notification.error {
+      background: var(--rojo);
+    }
+  </style>
 </head>
 <body>
   <!-- Notificación flotante -->
