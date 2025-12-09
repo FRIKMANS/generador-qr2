@@ -88,9 +88,6 @@
     <div class="campo campo-password campo-requerido">
       <label>Contraseña de autorización:</label>
       <input type="password" id="password" placeholder="Ingresa la contraseña" required>
-      <button type="button" class="toggle-password" onclick="togglePassword()">
-        👁️
-      </button>
     </div>
     
     <button class="boton-registrar" onclick="enviarDatos()" id="btnEnviar">
@@ -125,20 +122,6 @@
         </div>
       `;
       throw new Error('Token inválido');
-    }
-    
-    // Función para mostrar/ocultar contraseña
-    function togglePassword() {
-      const passwordField = document.getElementById('password');
-      const toggleBtn = document.querySelector('.toggle-password');
-      
-      if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        toggleBtn.textContent = '🙈';
-      } else {
-        passwordField.type = 'password';
-        toggleBtn.textContent = '👁️';
-      }
     }
     
     // Función principal
@@ -292,7 +275,7 @@
       const costo = document.getElementById('costo').value;
       
       if (!nombre || !movimiento || !vehiculo || !costo) {
-        document.getElementById('mensaje').textContent = '⚠️ Datos incompletos. Escanea un QR válido.';
+        document.getElementById('mensaje').textContent = 'Datos incompletos. Escanea un QR válido.';
         document.getElementById('mensaje').className = 'mensaje error';
         document.getElementById('mensaje').style.display = 'block';
         document.getElementById('btnEnviar').disabled = true;
