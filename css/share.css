@@ -1,0 +1,234 @@
+/* ========== PANEL DE COMPARTIR ========== */
+.share-panel {
+  display: none;
+  margin: 25px auto 0;
+  background: var(--blanco);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  width: 100%;
+  max-width: 380px;
+  border: 2px solid var(--verde);
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.share-panel h3 {
+  color: var(--morado);
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.share-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.share-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 5px;
+  border-radius: 12px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  min-height: 85px;
+}
+
+.share-btn i {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.share-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  filter: brightness(1.1);
+}
+
+.share-btn:active {
+  transform: translateY(0);
+}
+
+/* Colores específicos */
+.whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
+.email { background: linear-gradient(135deg, #EA4335, #D14836); }
+.telegram { background: linear-gradient(135deg, #0088cc, #006699); }
+.sms { background: linear-gradient(135deg, #34B7F1, #0D8BDB); }
+.copy { background: linear-gradient(135deg, var(--morado), #5a2a7a); }
+.download { background: linear-gradient(135deg, var(--azul), #3a9c99); }
+
+.share-link {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.share-link input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.share-link button {
+  background-color: var(--verde);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+  min-width: 50px;
+}
+
+.share-link button:hover {
+  background-color: var(--azul);
+}
+
+.close-share {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #888;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.close-share:hover {
+  background-color: #f5f5f5;
+  color: var(--rojo);
+}
+
+.qr-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+
+.qr-actions button {
+  width: auto;
+  padding: 12px 25px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.btn-share {
+  background-color: var(--azul);
+}
+
+.btn-share:hover {
+  background-color: #3a9c99;
+}
+
+/* Notificación flotante */
+.notification {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  background: var(--verde-exito);
+  color: white;
+  padding: 18px 24px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  display: none;
+  z-index: 1000;
+  animation: slideIn 0.4s ease-out;
+  max-width: 350px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.notification.error {
+  background: linear-gradient(135deg, var(--rojo), #d32f2f);
+}
+
+@keyframes slideIn {
+  from { 
+    transform: translateX(100%) translateY(-20px); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0) translateY(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-15px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Efecto de pulso */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.btn-share.pulse {
+  animation: pulse 1s infinite;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .share-buttons {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .share-btn {
+    min-height: 80px;
+    font-size: 12px;
+  }
+  
+  .share-btn i {
+    font-size: 24px;
+  }
+  
+  .qr-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .qr-actions button {
+    width: 100%;
+    max-width: 250px;
+  }
+  
+  .notification {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+}
