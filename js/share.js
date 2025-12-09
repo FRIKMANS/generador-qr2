@@ -1,9 +1,11 @@
-// ========== MÓDULO DE COMPARTIR ==========
+// ========== MÓDULO DE COMPARTIR CON IMAGEN ==========
 class ShareManager {
   constructor() {
     this.enlaceGenerado = '';
     this.qrInstance = null;
     this.isPanelVisible = false;
+    this.qrImageUrl = null;
+    this.qrBlob = null;
     
     this.init();
   }
@@ -12,8 +14,6 @@ class ShareManager {
     this.createNotification();
     this.createSharePanel();
     this.setupEventListeners();
-    
-    // Sobrescribir funciones globales
     this.overrideGlobalFunctions();
   }
   
@@ -53,7 +53,36 @@ class ShareManager {
         <button class="close-share" onclick="shareManager.hideSharePanel()">
           <i class="fas fa-times"></i>
         </button>
-        <h3>Compartir Cotización</h3>
+        <h3>📤 Compartir Cotización</h3>
+        
+        <div class="share-options">
+          <div class="share-option">
+            <input type="radio" id="shareLink" name="shareType" value="link" checked>
+            <label for="shareLink">
+              <i class="fas fa-link"></i>
+              <span>Compartir enlace</span>
+              <small>Solo el enlace de la cotización</small>
+            </label>
+          </div>
+          
+          <div class="share-option">
+            <input type="radio" id="shareImage" name="shareType" value="image">
+            <label for="shareImage">
+              <i class="fas fa-image"></i>
+              <span>Compartir imagen QR</span>
+              <small>Envía la imagen del código QR</small>
+            </label>
+          </div>
+          
+          <div class="share-option">
+            <input type="radio" id="shareBoth" name="shareType" value="both">
+            <label for="shareBoth">
+              <i class="fas fa-images"></i>
+              <span>Enlace + Imagen QR</span>
+              <small>Envía ambos (solo correo)</small>
+            </label>
+          </div>
+        </div>
         
         <div class="share-buttons">
           <button class="share-btn whatsapp" onclick="shareManager.shareWhatsApp()">
@@ -93,12 +122,291 @@ class ShareManager {
             <i class="fas fa-copy"></i>
           </button>
         </div>
+        
+        <div class="qr-preview" id="qrPreview">
+          <p><strong>Vista previa del QR:</strong></p>
+          <img id="qrPreviewImage" src="" alt="QR Code Preview" style="max-width: 150px; display: none;">
+          <p id="qrPreviewText" style="font-size: 12px; color: #666; margin-top: 5px;">
+            La imagen del QR se generará al compartir
+          </p>
+        </div>
       </div>
     `;
     
     const container = document.getElementById('sharePanelContainer');
     if (container) {
       container.innerHTML = panelHTML;
+    }
+  }
+  
+  // Obtener tipo de compartir seleccionado
+  getShareType() {
+    const selected = document.querySelector('input[name="shareType"]:checked');
+    return selected ? selected.value : 'link';
+  }
+  
+  // Generar blob del QR
+  async generateQRBlob() {
+    if (!this.qrInstance) {
+      throw new Error('No hay instancia de QR disponible');
+    }
+    
+    try {
+      // Obtener blob del QR
+      const blob = await this.qrInstance.getRawData('png');
+      this.qrBlob = blob;
+      this.qrImageUrl = URL.createObjectURL(blob);
+      
+      // Mostrar vista previa
+      const previewImg = document.getElementById('qrPreviewImage');
+      if (previewImg) {
+        previewImg.src = this.qrImageUrl;
+        previewImg.style.display = 'block';
+      }
+      
+      return blob;
+    } catch (error) {
+      console.error('Error generando blob del QR:', error);
+      throw error;
+    }
+  }
+  
+  // Obtener información de la cotización
+  getQuoteInfo() {
+    const nombre = document.getElementById('nombre')?.value || '';
+    const movimiento = document.getElementById('movimiento')?.value || '';
+    const vehiculo = document.getElementById('vehiculo')?.value || '';
+    const costo = document.getElementById('costo')?.value || '';
+    
+    return { nombre, movimiento, vehiculo, costo };
+  }
+  
+  // Generar mensaje para compartir
+  generateShareMessage(includeLink = true) {
+    const { nombre, movimiento, vehiculo, costo } = this.getQuoteInfo();
+    
+    let message = `*COTIZACIÓN DE SERVICIO*\n\n`;
+    
+    if (includeLink) {
+      message += `🔗 *Presenta este código en mostrador*\n${this.enlaceGenerado}\n\n`;
+    }
+    
+    message += `_Escanea el código QR para registrar la cotización_`;
+    
+    return message;
+  }
+  
+  // Compartir por WhatsApp
+  async shareWhatsApp() {
+    try {
+      const shareType = this.getShareType();
+      const message = this.generateShareMessage(shareType !== 'image');
+      
+      if (shareType === 'image' || shareType === 'both') {
+        // WhatsApp Web no permite compartir imágenes directamente desde JS
+        // Solo podemos compartir el enlace
+        this.showNotification('WhatsApp solo puede compartir enlaces desde web', 'error');
+        shareType = 'link'; // Cambiar a solo enlace
+      }
+      
+      const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+      this.showNotification('WhatsApp abierto para compartir');
+      
+    } catch (error) {
+      console.error('Error compartiendo por WhatsApp:', error);
+      this.showNotification('Error al compartir', 'error');
+    }
+  }
+  
+  // Compartir por correo (con imagen adjunta)
+  async shareEmail() {
+    try {
+      const shareType = this.getShareType();
+      const { nombre, movimiento, vehiculo, costo } = this.getQuoteInfo();
+      
+      const subject = `Cotización: ${movimiento} - ${vehiculo}`;
+      let body = `COTIZACIÓN DE SERVICIO\n\n`;
+      body += `Vendedor: ${nombre}\n`;
+      body += `Tipo de movimiento: ${movimiento}\n`;
+      body += `Vehículo: ${vehiculo}\n`;
+      body += `Costo: $${costo}\n\n`;
+      
+      if (shareType !== 'image') {
+        body += `Para registrar esta cotización, accede al siguiente enlace:\n`;
+        body += `${this.enlaceGenerado}\n\n`;
+      }
+      
+      body += `Adjunto encontrarás el código QR para escanear.\n`;
+      body += `Saludos,\nSistema de Cotizaciones`;
+      
+      if (shareType === 'image' || shareType === 'both') {
+        // Para correo necesitamos generar el QR primero
+        await this.generateQRBlob();
+        
+        // Crear un formulario temporal para enviar el correo
+        this.showNotification('Para adjuntar imágenes necesita backend', 'info');
+        
+        // Fallback a solo enlace
+        const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = url;
+      } else {
+        // Solo enlace
+        const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = url;
+      }
+      
+      this.showNotification('Cliente de correo abierto');
+      
+    } catch (error) {
+      console.error('Error compartiendo por correo:', error);
+      this.showNotification('Error al compartir', 'error');
+    }
+  }
+  
+  // Compartir por Telegram
+  async shareTelegram() {
+    try {
+      const shareType = this.getShareType();
+      let message = this.generateShareMessage(shareType !== 'image');
+      
+      if (shareType === 'image' || shareType === 'both') {
+        // Telegram Web no permite subir imágenes directamente desde JS
+        this.showNotification('Telegram web no permite subir imágenes', 'info');
+        
+        // Alternativa: Crear un mensaje con vista previa del enlace
+        message += `\n\n*Imagen del QR disponible para descargar*`;
+      }
+      
+      const url = `https://t.me/share/url?url=${encodeURIComponent(this.enlaceGenerado)}&text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+      this.showNotification('Telegram abierto para compartir');
+      
+    } catch (error) {
+      console.error('Error compartiendo por Telegram:', error);
+      this.showNotification('Error al compartir', 'error');
+    }
+  }
+  
+  // Compartir por SMS
+  async shareSMS() {
+    try {
+      const shareType = this.getShareType();
+      
+      if (shareType === 'image' || shareType === 'both') {
+        this.showNotification('SMS no soporta imágenes', 'info');
+        shareType = 'link'; // Cambiar a solo enlace
+      }
+      
+      const message = this.generateShareMessage(true);
+      
+      // Para dispositivos móviles
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = `sms:?body=${encodeURIComponent(message)}`;
+      } else {
+        // Para escritorio
+        const url = `sms:?body=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+      }
+      
+      this.showNotification('Preparado para enviar SMS');
+      
+    } catch (error) {
+      console.error('Error compartiendo por SMS:', error);
+      this.showNotification('Error al compartir', 'error');
+    }
+  }
+  
+  // Compartir imagen del QR directamente
+  async shareImageDirectly() {
+    try {
+      if (!this.qrInstance) {
+        this.showNotification('Primero genera un QR', 'error');
+        return;
+      }
+      
+      // Generar blob del QR
+      await this.generateQRBlob();
+      
+      // Crear un enlace de descarga
+      const link = document.createElement('a');
+      link.href = this.qrImageUrl;
+      
+      const { nombre, movimiento, vehiculo } = this.getQuoteInfo();
+      const filename = `QR_Cotizacion_${nombre}_${movimiento}_${vehiculo}.png`
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\-.]/g, '');
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      this.showNotification('Imagen del QR lista para compartir');
+      
+    } catch (error) {
+      console.error('Error compartiendo imagen:', error);
+      this.showNotification('Error al generar imagen', 'error');
+    }
+  }
+  
+  // Método para compartir usando Web Share API
+  async shareWithWebShare() {
+    try {
+      if (!navigator.share) {
+        this.showNotification('Tu navegador no soporta compartir nativo', 'error');
+        return;
+      }
+      
+      const shareType = this.getShareType();
+      const { nombre, movimiento, vehiculo, costo } = this.getQuoteInfo();
+      
+      const shareData = {
+        title: `Cotización: ${movimiento} - ${vehiculo}`,
+        text: this.generateShareMessage(shareType !== 'image')
+      };
+      
+      if (shareType === 'image' || shareType === 'both') {
+        // Generar blob del QR
+        await this.generateQRBlob();
+        
+        // Convertir blob a File
+        const filename = `QR_Cotizacion_${nombre}_${movimiento}_${vehiculo}.png`
+          .replace(/\s+/g, '_')
+          .replace(/[^\w\-.]/g, '');
+        
+        const file = new File([this.qrBlob], filename, { type: 'image/png' });
+        shareData.files = [file];
+      }
+      
+      if (shareType !== 'image') {
+        shareData.url = this.enlaceGenerado;
+      }
+      
+      await navigator.share(shareData);
+      this.showNotification('Compartido exitosamente');
+      
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Error compartiendo:', error);
+        this.showNotification('Error al compartir', 'error');
+      }
+    }
+  }
+  
+  // Botón para compartir nativo
+  setupNativeShareButton() {
+    const sharePanel = document.getElementById('sharePanel');
+    if (sharePanel && navigator.share) {
+      const nativeShareBtn = document.createElement('button');
+      nativeShareBtn.className = 'share-btn native';
+      nativeShareBtn.innerHTML = '<i class="fas fa-share-alt"></i><span>Compartir</span>';
+      nativeShareBtn.onclick = () => this.shareWithWebShare();
+      
+      const shareButtons = sharePanel.querySelector('.share-buttons');
+      if (shareButtons) {
+        shareButtons.insertBefore(nativeShareBtn, shareButtons.firstChild);
+      }
     }
   }
   
@@ -116,6 +424,18 @@ class ShareManager {
       panel.style.display = 'block';
       input.value = this.enlaceGenerado;
       this.isPanelVisible = true;
+      
+      // Actualizar vista previa si ya hay imagen
+      if (this.qrImageUrl) {
+        const previewImg = document.getElementById('qrPreviewImage');
+        if (previewImg) {
+          previewImg.src = this.qrImageUrl;
+          previewImg.style.display = 'block';
+        }
+      }
+      
+      // Configurar botón de compartir nativo si está disponible
+      this.setupNativeShareButton();
     }
   }
   
@@ -126,86 +446,6 @@ class ShareManager {
       panel.style.display = 'none';
       this.isPanelVisible = false;
     }
-  }
-  
-  // Compartir por WhatsApp
-  shareWhatsApp() {
-    if (!this.enlaceGenerado) return;
-    
-    const nombre = document.getElementById('nombre')?.value || '';
-    const movimiento = document.getElementById('movimiento')?.value || '';
-    const vehiculo = document.getElementById('vehiculo')?.value || '';
-    const costo = document.getElementById('costo')?.value || '';
-    
-    const message = `Muestra este código al llegar\n` +
-                   `${this.enlaceGenerado}`;
-    
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-    this.showNotification('WhatsApp abierto para compartir');
-  }
-  
-  // Compartir por correo
-  shareEmail() {
-    if (!this.enlaceGenerado) return;
-    
-    const nombre = document.getElementById('nombre')?.value || '';
-    const movimiento = document.getElementById('movimiento')?.value || '';
-    const vehiculo = document.getElementById('vehiculo')?.value || '';
-    const costo = document.getElementById('costo')?.value || '';
-    
-    const subject = `Cotización: ${movimiento} - ${vehiculo}`;
-    const body = `COTIZACIÓN DE SERVICIO\n\n` +
-                `Vendedor: ${nombre}\n` +
-                `Tipo de movimiento: ${movimiento}\n` +
-                `Vehículo: ${vehiculo}\n` +
-                `Costo: $${costo}\n\n` +
-                `Para registrar esta cotización, accede al siguiente enlace:\n` +
-                `${this.enlaceGenerado}\n\n` +
-                `O escanea el código QR adjunto.`;
-    
-    const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = url;
-    this.showNotification('Cliente de correo abierto');
-  }
-  
-  // Compartir por Telegram
-  shareTelegram() {
-    if (!this.enlaceGenerado) return;
-    
-    const nombre = document.getElementById('nombre')?.value || '';
-    const movimiento = document.getElementById('movimiento')?.value || '';
-    const vehiculo = document.getElementById('vehiculo')?.value || '';
-    const costo = document.getElementById('costo')?.value || '';
-    
-    const message = `Enlace para registrar: ${this.enlaceGenerado}`;
-    
-    const url = `https://t.me/share/url?url=${encodeURIComponent(this.enlaceGenerado)}&text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-    this.showNotification('Telegram abierto para compartir');
-  }
-  
-  // Compartir por SMS
-  shareSMS() {
-    if (!this.enlaceGenerado) return;
-    
-    const nombre = document.getElementById('nombre')?.value || '';
-    const movimiento = document.getElementById('movimiento')?.value || '';
-    const vehiculo = document.getElementById('vehiculo')?.value || '';
-    const costo = document.getElementById('costo')?.value || '';
-    
-    const message = `COTIZACIÓN:\nVendedor: ${nombre}\nMovimiento: ${movimiento}\nVehículo: ${vehiculo}\nCosto: $${costo}\n\nRegistrar: ${this.enlaceGenerado}`;
-    
-    // Para dispositivos móviles
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      window.location.href = `sms:?body=${encodeURIComponent(message)}`;
-    } else {
-      // Para escritorio
-      const url = `sms:?body=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
-    }
-    
-    this.showNotification('Preparado para enviar SMS');
   }
   
   // Copiar enlace al portapapeles
@@ -256,27 +496,29 @@ class ShareManager {
   }
   
   // Descargar QR
-  downloadQR() {
-    if (!this.qrInstance) {
-      this.showNotification('Primero genera un QR', 'error');
-      return;
-    }
-    
-    const nombre = document.getElementById('nombre')?.value?.replace(/\s+/g, '_') || 'Vendedor';
-    const movimiento = document.getElementById('movimiento')?.value?.replace(/\s+/g, '_') || 'Movimiento';
-    const vehiculo = document.getElementById('vehiculo')?.value?.replace(/\s+/g, '_') || 'Vehiculo';
-    
-    const filename = `QR_Cotizacion_${nombre}_${movimiento}_${vehiculo}.png`;
-    
-    this.qrInstance.download({
-      name: filename,
-      extension: "png"
-    }).then(() => {
+  async downloadQR() {
+    try {
+      if (!this.qrInstance) {
+        this.showNotification('Primero genera un QR', 'error');
+        return;
+      }
+      
+      const { nombre, movimiento, vehiculo } = this.getQuoteInfo();
+      const filename = `QR_Cotizacion_${nombre}_${movimiento}_${vehiculo}.png`
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\-.]/g, '');
+      
+      await this.qrInstance.download({
+        name: filename,
+        extension: "png"
+      });
+      
       this.showNotification('QR descargado correctamente');
-    }).catch(error => {
+      
+    } catch (error) {
       console.error('Error al descargar:', error);
       this.showNotification('Error al descargar', 'error');
-    });
+    }
   }
   
   // Actualizar enlace generado
@@ -287,6 +529,13 @@ class ShareManager {
   // Actualizar instancia QR
   updateQRInstance(qr) {
     this.qrInstance = qr;
+    
+    // Limpiar URL anterior si existe
+    if (this.qrImageUrl) {
+      URL.revokeObjectURL(this.qrImageUrl);
+      this.qrImageUrl = null;
+      this.qrBlob = null;
+    }
   }
   
   // Configurar event listeners
@@ -308,6 +557,13 @@ class ShareManager {
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && this.isPanelVisible) {
         this.hideSharePanel();
+      }
+    });
+    
+    // Limpiar URLs cuando se cierre la página
+    window.addEventListener('beforeunload', () => {
+      if (this.qrImageUrl) {
+        URL.revokeObjectURL(this.qrImageUrl);
       }
     });
   }
@@ -367,6 +623,13 @@ class ShareManager {
     window.descargarQR = () => {
       if (window.shareManager) {
         window.shareManager.downloadQR();
+      }
+    };
+    
+    // Nueva función para compartir imagen
+    window.compartirImagenQR = () => {
+      if (window.shareManager) {
+        window.shareManager.shareImageDirectly();
       }
     };
   }

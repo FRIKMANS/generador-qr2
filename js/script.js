@@ -14,7 +14,7 @@ function generarQR() {
   }
 
   try {
-    // Usar QRManager si está disponible
+    // Usar QRManager
     if (window.qrManager) {
       const qrData = { nombre, movimiento, vehiculo, costo };
       qrInstance = window.qrManager.generateQR(qrData);
@@ -35,7 +35,7 @@ function generarQR() {
   }
 }
 
-// Método fallback si no hay QRManager
+// Método fallback si falla QRManager
 function generateQRFallback(nombre, movimiento, vehiculo, costo) {
   const baseURL = "https://frikmans.github.io/generador-qr2/formulario-datos.html";
   const enlace = `${baseURL}?nombre=${encodeURIComponent(nombre)}&movimiento=${encodeURIComponent(movimiento)}&vehiculo=${encodeURIComponent(vehiculo)}&costo=${encodeURIComponent(costo)}&token=U2VydmljaW9QYXJhUGF0eQ==`;
