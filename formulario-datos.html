@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="css/style.css">
   
   <style>
- 
     .form-container.datos {
       position: relative;
     }
@@ -24,10 +23,34 @@
       font-weight: 600;
     }
     
-    .campo .valor {
-      font-weight: 600;
+    .campo-password {
+      position: relative;
+    }
+    
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 42px;
+      background: none;
+      border: none;
       color: var(--morado);
-      margin-left: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 0;
+      width: auto;
+    }
+    
+    .toggle-password:hover {
+      color: var(--azul);
+      background: none;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .campo-requerido label::after {
+      content: " *";
+      color: var(--rojo);
+      font-weight: bold;
     }
   </style>
 
@@ -61,8 +84,17 @@
       <input type="text" id="costo" readonly>
     </div>
     
+    <!-- NUEVO CAMPO: CONTRASEÑA -->
+    <div class="campo campo-password campo-requerido">
+      <label>Contraseña de autorización:</label>
+      <input type="password" id="password" placeholder="Ingresa la contraseña" required>
+      <button type="button" class="toggle-password" onclick="togglePassword()">
+        👁️
+      </button>
+    </div>
+    
     <button class="boton-registrar" onclick="enviarDatos()" id="btnEnviar">
-      Registrar en Sistema
+      Registrar Cotización
     </button>
     
     <div id="mensaje" class="mensaje"></div>
@@ -95,60 +127,101 @@
       throw new Error('Token inválido');
     }
     
+    // Función para mostrar/ocultar contraseña
+    function togglePassword() {
+      const passwordField = document.getElementById('password');
+      const toggleBtn = document.querySelector('.toggle-password');
+      
+      if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleBtn.textContent = '🙈';
+      } else {
+        passwordField.type = 'password';
+        toggleBtn.textContent = '👁️';
+      }
+    }
+    
     // Función principal
     async function enviarDatos() {
       const btn = document.getElementById('btnEnviar');
       const mensajeDiv = document.getElementById('mensaje');
+      const passwordField = document.getElementById('password');
       
+      // Validar contraseña
+      const password = passwordField.value.trim();
+      if (!password) {
+        mensajeDiv.innerHTML = '<strong>Contraseña requerida</strong><br><small>Ingresa la contraseña de autorización</small>';
+        mensajeDiv.className = 'mensaje error';
+        mensajeDiv.style.display = 'block';
+        passwordField.focus();
+        return;
+      }
+      
+      // Deshabilitar botón y mostrar estado
       btn.disabled = true;
       btn.classList.add('cargando');
-      btn.innerHTML = 'Enviando...';
+      btn.innerHTML = 'Validando...';
       mensajeDiv.style.display = 'none';
       
-      // Enviar los 4 campos principales + token
+      // Enviar los campos
       const datos = {
         nombre: document.getElementById('nombre').value,
         movimiento: document.getElementById('movimiento').value,
         vehiculo: document.getElementById('vehiculo').value,
         costo: document.getElementById('costo').value,
+        password: password,
         token: TOKEN_SECRETO
       };
-      
-      console.log('📤 Enviando datos:', datos);
-      
+            
       try {
         const respuesta = await enviarConForm(datos);
         
         if (respuesta.success) {
-          mensajeDiv.innerHTML = '<strong>Cotización registrada</strong><br>';
+          mensajeDiv.innerHTML = '<strong>Cotización autorizada y registrada</strong><br>';
           if (respuesta.data) {
             mensajeDiv.innerHTML += `
               <div class="texto-pequeno">
                 ID: ${respuesta.data.fila} | 
                 ${respuesta.data.fecha} ${respuesta.data.hora}<br>
-                Vehículo: ${respuesta.data.vehiculo}
+                Vendedor: ${respuesta.data.vendedor}<br>
+                Vehículo: ${respuesta.data.vehiculo}<br>
+                Costo: $${respuesta.data.costo.toFixed(2)}
               </div>
             `;
           }
           mensajeDiv.className = 'mensaje';
           btn.classList.remove('cargando');
-          btn.innerHTML = 'Registrado';
+          btn.innerHTML = 'Autorizado';
           btn.style.backgroundColor = 'var(--verde-exito)';
+          
+          // Deshabilitar campo de contraseña después de éxito
+          passwordField.disabled = true;
+          passwordField.style.backgroundColor = 'var(--gris-oscuro)';
           
           // Auto-cerrar sugerencia
           setTimeout(() => {
             mensajeDiv.innerHTML += '<br><small>Esta ventana puede cerrarse</small>';
-          }, 2000);
+          }, 3000);
+          
+          // Limpiar contraseña después de 5 segundos
+          setTimeout(() => {
+            passwordField.value = '';
+          }, 5000);
+          
         } else {
-          throw new Error(respuesta.error || 'Error en el servidor');
+          throw new Error(respuesta.error || 'Error en la autorización');
         }
       } catch (error) {
         console.error('Error:', error);
-        mensajeDiv.innerHTML = '<strong>Error al registrar</strong><br><small>' + error.message + '</small>';
+        mensajeDiv.innerHTML = '<strong>Error de autorización</strong><br><small>' + error.message + '</small>';
         mensajeDiv.className = 'mensaje error';
         btn.classList.remove('cargando');
         btn.disabled = false;
         btn.innerHTML = 'Intentar nuevamente';
+        
+        // Limpiar campo de contraseña en caso de error
+        passwordField.value = '';
+        passwordField.focus();
       } finally {
         mensajeDiv.style.display = 'block';
       }
@@ -203,8 +276,11 @@
         
         // Timeout por seguridad
         setTimeout(() => {
-          resolve({ success: true, message: 'Registro enviado al sistema' });
-        }, 8000);
+          resolve({ 
+            success: false, 
+            error: 'Tiempo de espera agotado. Verifica tu conexión.' 
+          });
+        }, 10000);
       });
     }
     
@@ -220,11 +296,23 @@
         document.getElementById('mensaje').className = 'mensaje error';
         document.getElementById('mensaje').style.display = 'block';
         document.getElementById('btnEnviar').disabled = true;
+        document.getElementById('password').disabled = true;
         console.error('Datos incompletos:', {nombre, movimiento, vehiculo, costo});
       } else {
-        console.log('Formulario cargado correctamente');
+        // Enfocar campo de contraseña automáticamente
+        setTimeout(() => {
+          document.getElementById('password').focus();
+        }, 500);
       }
     };
+    
+    // Permitir enviar con Enter en el campo de contraseña
+    document.getElementById('password').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        enviarDatos();
+      }
+    });
   </script>
 </body>
 </html>
