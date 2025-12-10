@@ -6,16 +6,15 @@
   <title>Generador de QR para Cotizaciones</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/share.css">
+  <link rel="stylesheet" href="css/mobile-share.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <!-- Notificación flotante -->
   <div id="notification" class="notification"></div>
-  
+
   <h1>Generar QR de Cotización</h1>
-  
+
   <div class="form-container">
-    <!-- Campo: Nombre del vendedor -->
     <label for="nombre" class="requerido">Nombre del vendedor:</label>
     <select id="nombre" required>
       <option value="">Selecciona un vendedor</option>
@@ -30,7 +29,6 @@
       <option value="Verificentros">Verificentros</option>
     </select>
 
-    <!-- Campo: Tipo de movimiento -->
     <label for="movimiento" class="requerido">Tipo de movimiento:</label>
     <select id="movimiento" required>
       <option value="">Selecciona un tipo</option>
@@ -39,31 +37,22 @@
       <option value="Holograma(0)">Holograma(0)</option>
     </select>
 
-    <!-- Campo: Vehículo -->
     <label for="vehiculo" class="requerido">Vehículo:</label>
     <input type="text" id="vehiculo" placeholder="Ej: Nissan Sentra 2020" required>
 
-    <!-- Campo: Costo -->
     <label for="costo" class="requerido">Costo:</label>
     <input type="number" id="costo" placeholder="Ej. 1500" min="0" step="0.01" required>
 
     <button onclick="generarQR()">
       <i class="fas fa-qrcode"></i> Generar QR
     </button>
-    
-    <div class="texto-centro" style="margin-top: 15px;">
-      <button onclick="copiarEnlace()" class="btn-copiar">
-        <i class="fas fa-copy"></i> Copiar Enlace
-      </button>
-    </div>
   </div>
 
-  <!-- Tarjeta donde aparecerá el QR -->
   <div id="qrCard" class="qr-card" style="display:none;">
     <h2>Tu código QR</h2>
     <div id="qrContainer"></div>
     <p>Escanea este código con un teléfono para registrar la cotización</p>
-    
+
     <div class="qr-actions">
       <button onclick="mostrarPanelCompartir()" class="btn-share">
         <i class="fas fa-share-alt"></i> Compartir
@@ -74,15 +63,17 @@
     </div>
   </div>
 
-  <!-- Panel de compartir -->
   <div id="sharePanelContainer"></div>
 
-  <!-- Librerías -->
+  <!-- Librerías y scripts -->
   <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.min.js"></script>
+
+  <script src="js/qr-manaager.js"></script>
+
   <script src="js/script.js"></script>
+
   <script src="js/share.js"></script>
+
   <script src="js/mobile-share.js"></script>
-  <link rel="stylesheet" href="css/mobile-share.css"> 
-  <script src="js/qr-manager.js"></script>
 </body>
 </html>
