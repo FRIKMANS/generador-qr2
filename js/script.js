@@ -1,4 +1,5 @@
 // ========== FUNCIONES PRINCIPALES ==========
+
 let qrInstance = null;
 
 // Función principal para generar QR
@@ -23,7 +24,7 @@ function generarQR() {
       // Actualizar ShareManager
       if (window.shareManager) {
         window.shareManager.updateGeneratedLink(enlace);
-        window.shareManager.updateQRInstance(qrInstance);
+        window.shareManager.updateQRInstance(window.qrManager.getQRInstance());
       }
     } else {
       // Método original (fallback)

@@ -1,4 +1,5 @@
 // ========== GESTOR DE QR ==========
+
 class QRManager {
   constructor() {
     this.qrInstance = null;
