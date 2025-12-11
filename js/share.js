@@ -1,6 +1,5 @@
 // ======================================================
-// share.js — versión simplificada (solo Compartir + Descargar)
-// Sin botones extra, sin fallback de abrir pestaña nueva
+// share.js — versión simplificada
 // ======================================================
 
 class ShareManager {

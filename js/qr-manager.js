@@ -1,7 +1,6 @@
 // ======================================================
 // qr-manager.js
 // QR Manager — sistema robusto para generar códigos QR
-// Incluye método universal getBlob() con múltiples fallbacks
 // ======================================================
 
 class QRManager {

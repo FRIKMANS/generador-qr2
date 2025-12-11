@@ -1,5 +1,5 @@
 // ======================================================
-// script.js — integrador principal
+// script.js 
 // ======================================================
 
 let qrInstance = null;
@@ -31,7 +31,7 @@ function generarQR() {
       const qrCard = document.getElementById("qrCard");
       if (qrCard) qrCard.style.display = "block";
 
-      // Actualizar ShareManager con la instancia correcta (si existe)
+      // Actualizar ShareManager con la instancia correcta
       if (window.shareManager && typeof window.shareManager.updateQRInstance === 'function') {
         try {
           window.shareManager.updateQRInstance(window.qrManager.getQRInstance());
