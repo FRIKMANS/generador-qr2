@@ -1,12 +1,14 @@
-// Modal de compartir (interfaz). No hace upload; delega en mobileShareManager.
+// ======================================================
+// share.js — modal de interfaz y conexión con mobileShareManager
+// ======================================================
 
 class ShareManager {
   constructor() {
-    this.qrReady = false;
+    this.qrInstance = null; // referencia opcional a instancia QR (no siempre necesaria)
     this.initModal();
+    console.log('[Share] Inicializado ShareManager');
   }
 
-  // Inicializar modal en DOM
   initModal() {
     if (document.getElementById('shareModal')) return;
 
@@ -32,7 +34,6 @@ class ShareManager {
         </div>
       </div>
     `;
-
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
     // Bind events
@@ -44,40 +45,7 @@ class ShareManager {
     document.getElementById('btnEmail').addEventListener('click', () => this.onEmail());
     document.getElementById('btnDownload').addEventListener('click', () => this.onDownload());
 
-    this.injectMinimalStyles();
-  }
-
-  injectMinimalStyles() {
-    if (document.getElementById('shareModalStyles')) return;
-    const css = `
-      .share-modal.hidden { display: none; }
-      .share-modal { position: fixed; inset: 0; z-index: 3000; display: flex; align-items: center; justify-content: center; }
-      .share-modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
-      .share-modal-content { position: relative; background: #fff; border-radius: 10px; padding: 18px; width: 92%; max-width: 420px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); z-index: 2; }
-      .share-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-      .share-btn { padding: 10px; border-radius: 8px; border: 0; background: #733298; color: white; font-weight: 600; cursor: pointer; }
-      .share-btn:active { transform: scale(0.98); }
-      .share-close { margin-top: 6px; padding: 9px 12px; border-radius: 8px; border: 0; background: #444; color: #fff; cursor: pointer; }
-      .share-notice { padding: 8px; border-radius: 6px; background: #f5f5f5; margin-bottom: 8px; font-size: 14px; }
-    `;
-    const style = document.createElement('style');
-    style.id = 'shareModalStyles';
-    style.textContent = css;
-    document.head.appendChild(style);
-  }
-
-  showNotification(msg, timeout = 3000) {
-
-    let container = document.getElementById('globalShareNotification');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'globalShareNotification';
-      container.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:4000;padding:10px 14px;border-radius:8px;background:#222;color:#fff;font-weight:600;display:none;';
-      document.body.appendChild(container);
-    }
-    container.textContent = msg;
-    container.style.display = 'block';
-    setTimeout(() => { container.style.display = 'none'; }, timeout);
+    console.log('[Share] Modal creado y eventos vinculados');
   }
 
   showModal() {
@@ -92,102 +60,88 @@ class ShareManager {
     modal.classList.add('hidden');
   }
 
+  // allow script.js to pass the QR instance (optional)
+  updateQRInstance(qrInstance) {
+    this.qrInstance = qrInstance;
+    console.log('[Share] updateQRInstance llamado. instancia QR actualizada:', !!qrInstance);
+  }
 
+  // Delegadores
   async onShareImage() {
+    console.log('[Share] onShareImage');
     try {
-      if (!window.mobileShareManager) {
-        this.showNotification('Módulo móvil no disponible');
-        return;
-      }
-      this.showNotification('Procesando imagen...');
-      await window.mobileShareManager.uploadAndShare({ shareOnlyUrlIfNeeded: false });
-      this.showNotification('Operación finalizada', 2000);
+      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
+      await window.mobileShareManager.uploadAndShare({ channel: undefined, shareOnlyUrlIfNeeded: false });
     } catch (err) {
-      console.error('onShareImage error', err);
-      this.showNotification('Error al compartir imagen', 3000);
+      console.error('[Share] onShareImage error:', err);
+      alert('Error al compartir imagen. Revisa la consola.');
     }
   }
 
   async onWhatsApp() {
+    console.log('[Share] onWhatsApp');
     try {
-      if (!window.mobileShareManager) {
-        this.showNotification('Módulo móvil no disponible');
-        return;
-      }
-      this.showNotification('Preparando WhatsApp...');
-      await window.mobileShareManager.uploadAndShare({ channel: 'whatsapp', preferUrlText: false });
+      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
+      await window.mobileShareManager.uploadAndShare({ channel: 'whatsapp', preferUrlText: true });
     } catch (err) {
-      console.error('WhatsApp share error', err);
-      this.showNotification('Error preparando WhatsApp', 3000);
+      console.error('[Share] onWhatsApp error:', err);
+      alert('Error al preparar WhatsApp. Revisa la consola.');
     }
   }
 
   async onTelegram() {
+    console.log('[Share] onTelegram');
     try {
-      if (!window.mobileShareManager) {
-        this.showNotification('Módulo móvil no disponible');
-        return;
-      }
-      this.showNotification('Preparando Telegram...');
-      await window.mobileShareManager.uploadAndShare({ channel: 'telegram' });
+      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
+      await window.mobileShareManager.uploadAndShare({ channel: 'telegram', preferUrlText: true });
     } catch (err) {
-      console.error('Telegram share error', err);
-      this.showNotification('Error preparando Telegram', 3000);
+      console.error('[Share] onTelegram error:', err);
+      alert('Error al preparar Telegram. Revisa la consola.');
     }
   }
 
   async onSMS() {
+    console.log('[Share] onSMS');
     try {
-      if (!window.mobileShareManager) {
-        this.showNotification('Módulo móvil no disponible');
-        return;
-      }
-      this.showNotification('Preparando SMS...');
-      await window.mobileShareManager.uploadAndShare({ channel: 'sms' });
+      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
+      await window.mobileShareManager.uploadAndShare({ channel: 'sms', preferUrlText: true });
     } catch (err) {
-      console.error('SMS share error', err);
-      this.showNotification('Error preparando SMS', 3000);
+      console.error('[Share] onSMS error:', err);
+      alert('Error al preparar SMS. Revisa la consola.');
     }
   }
 
   async onEmail() {
+    console.log('[Share] onEmail');
     try {
-      if (!window.mobileShareManager) {
-        this.showNotification('Módulo móvil no disponible');
-        return;
-      }
-      this.showNotification('Preparando correo...');
-      await window.mobileShareManager.uploadAndShare({ channel: 'email' });
+      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
+      await window.mobileShareManager.uploadAndShare({ channel: 'email', preferUrlText: true });
     } catch (err) {
-      console.error('Email share error', err);
-      this.showNotification('Error preparando correo', 3000);
+      console.error('[Share] onEmail error:', err);
+      alert('Error al preparar correo. Revisa la consola.');
     }
   }
 
   async onDownload() {
+    console.log('[Share] onDownload');
     try {
-      if (!window.qrManager) {
-        this.showNotification('QRManager no disponible', 3000);
-        return;
-      }
-      // obtener blob desde qrManager y activar descarga
+      if (!window.qrManager) throw new Error('qrManager no disponible');
       const blob = await window.qrManager.getBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      // usa nombre de archivo con marca de tiempo para evitar colisiones
       a.download = `QR_Cotizacion_${Date.now()}.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 30000);
-      this.showNotification('Descarga iniciada', 2000);
     } catch (err) {
-      console.error('download error', err);
-      this.showNotification('Error al descargar', 3000);
+      console.error('[Share] onDownload error:', err);
+      alert('Error al descargar. Revisa la consola.');
     }
   }
 }
 
 // Exponer singleton
 window.shareManager = window.shareManager || new ShareManager();
+console.log('[Share] shareManager disponible');

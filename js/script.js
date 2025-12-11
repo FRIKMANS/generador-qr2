@@ -1,6 +1,9 @@
+// ======================================================
+// script.js — integrador principal
+// ======================================================
+
 let qrInstance = null;
 
-// Función principal para generar QR
 function generarQR() {
   const nombre = document.getElementById("nombre").value;
   const movimiento = document.getElementById("movimiento").value;
@@ -13,79 +16,92 @@ function generarQR() {
   }
 
   try {
+    console.log('[Script] generarQR -> datos:', { nombre, movimiento, vehiculo, costo });
+
     if (window.qrManager) {
       const qrData = { nombre, movimiento, vehiculo, costo };
 
       // Generar QR mediante QRManager
       qrInstance = window.qrManager.generateQR(qrData);
 
-      // Mostrar en contenedor
+      // Renderizar en contenedor
       window.qrManager.renderQR('qrContainer');
 
       // Mostrar tarjeta QR
-      document.getElementById("qrCard").style.display = "block";
+      const qrCard = document.getElementById("qrCard");
+      if (qrCard) qrCard.style.display = "block";
 
-      // Actualizar ShareManager con la instancia correcta
-      if (window.shareManager) {
-        window.shareManager.updateQRInstance(window.qrManager.getQRInstance());
+      // Actualizar ShareManager con la instancia correcta (si existe)
+      if (window.shareManager && typeof window.shareManager.updateQRInstance === 'function') {
+        try {
+          window.shareManager.updateQRInstance(window.qrManager.getQRInstance());
+          console.log('[Script] shareManager.updateQRInstance llamado correctamente');
+        } catch (err) {
+          console.warn('[Script] shareManager.updateQRInstance fallo:', err);
+        }
+      } else {
+        console.warn('[Script] shareManager o updateQRInstance no disponible');
       }
     } else {
+      console.warn('[Script] qrManager no disponible, usando fallback');
       generateQRFallback(nombre, movimiento, vehiculo, costo);
     }
   } catch (error) {
-    console.error("Error al generar QR:", error);
-    alert("Hubo un error al generar el código QR.");
+    console.error('[Script] Error al generar QR:', error);
+    alert("Hubo un error al generar el código QR. Revisa la consola.");
   }
 }
 
-// Fallback sin QRManager
 function generateQRFallback(nombre, movimiento, vehiculo, costo) {
-  const baseURL = "https://frikmans.github.io/generador-qr2/formulario-datos.html";
-  const enlace = `${baseURL}?nombre=${encodeURIComponent(nombre)}&movimiento=${encodeURIComponent(movimiento)}&vehiculo=${encodeURIComponent(vehiculo)}&costo=${encodeURIComponent(costo)}&token=U2VydmljaW9QYXJhUGF0eQ==`;
+  try {
+    const baseURL = "https://frikmans.github.io/generador-qr2/formulario-datos.html";
+    const enlace = `${baseURL}?nombre=${encodeURIComponent(nombre)}&movimiento=${encodeURIComponent(movimiento)}&vehiculo=${encodeURIComponent(vehiculo)}&costo=${encodeURIComponent(costo)}&token=U2VydmljaW9QYXJhUGF0eQ==`;
 
-  const contenedor = document.getElementById("qrContainer");
-  contenedor.innerHTML = "";
-  document.getElementById("qrCard").style.display = "block";
+    console.log('[Script] generateQRFallback -> enlace:', enlace);
 
-  qrInstance = new QRCodeStyling({
-    width: 260,
-    height: 260,
-    data: enlace,
-    image: "img/logo.jpg",
-    dotsOptions: {
-      color: "#733298",
-      type: "rounded"
-    },
-    backgroundOptions: {
-      color: "#ffffff"
-    },
-    cornersSquareOptions: {
-      color: "#44ABA8",
-      type: "extra-rounded"
-    },
-    cornersDotOptions: {
-      color: "#733298"
+    const contenedor = document.getElementById("qrContainer");
+    contenedor.innerHTML = "";
+    document.getElementById("qrCard").style.display = "block";
+
+    qrInstance = new QRCodeStyling({
+      width: 260,
+      height: 260,
+      data: enlace,
+      image: "img/logo.jpg",
+      dotsOptions: { color: "#733298", type: "rounded" },
+      backgroundOptions: { color: "#ffffff" },
+      cornersSquareOptions: { color: "#44ABA8", type: "extra-rounded" },
+      cornersDotOptions: { color: "#733298" }
+    });
+
+    qrInstance.append(contenedor);
+    window.qr = qrInstance;
+
+    if (window.shareManager && typeof window.shareManager.updateQRInstance === 'function') {
+      window.shareManager.updateQRInstance(qrInstance);
+      console.log('[Script] Fallback: shareManager.updateQRInstance actualizado');
     }
-  });
-
-  qrInstance.append(contenedor);
-
-  // Actualizar ShareManager
-  if (window.shareManager) {
-    window.shareManager.updateQRInstance(qrInstance);
+  } catch (err) {
+    console.error('[Script] generateQRFallback error:', err);
   }
 }
 
-// Descargar QR como archivo
 function descargarQR() {
-  if (!qrInstance) {
-    alert("Genera un código QR primero.");
-    return;
+  try {
+    if (!qrInstance) {
+      alert("Genera un código QR primero.");
+      return;
+    }
+    console.log('[Script] descargarQR -> iniciando descarga');
+    qrInstance.download({ name: "QR_Cotizacion", extension: "png" });
+  } catch (err) {
+    console.error('[Script] descargarQR error:', err);
+    alert('Error al descargar QR. Revisa la consola.');
   }
-
-  qrInstance.download({ name: "QR_Cotizacion", extension: "png" });
 }
 
-// Exponer funciones globales
+// Exportar globalmente
 window.generarQR = generarQR;
 window.descargarQR = descargarQR;
+
+console.log('[Script] cargado');
