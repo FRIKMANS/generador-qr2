@@ -1,147 +1,133 @@
 // ======================================================
-// share.js — modal de interfaz y conexión con mobileShareManager
+// share.js — versión simplificada (solo Compartir + Descargar)
+// Sin botones extra, sin fallback de abrir pestaña nueva
 // ======================================================
 
 class ShareManager {
   constructor() {
-    this.qrInstance = null; // referencia opcional a instancia QR (no siempre necesaria)
+    this.qrInstance = null;
     this.initModal();
-    console.log('[Share] Inicializado ShareManager');
+    console.log("[Share] Inicializado ShareManager (versión simplificada)");
   }
 
   initModal() {
-    if (document.getElementById('shareModal')) return;
+    if (document.getElementById("shareModal")) return;
 
-    const modalHtml = `
-      <div id="shareModal" class="share-modal hidden" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    const modal = `
+      <div id="shareModal" class="share-modal hidden">
         <div class="share-modal-backdrop" onclick="shareManager.hideModal()"></div>
-        <div class="share-modal-content" role="document">
-          <h2 id="shareTitle">Compartir Cotización</h2>
-          <div id="shareNotice" class="share-notice" style="display:none;"></div>
+        <div class="share-modal-content">
+
+          <h2>Compartir</h2>
+          <p id="shareMessage" style="display:none;" class="share-warning"></p>
 
           <div class="share-actions">
-            <button class="share-btn" id="btnShareImage">Compartir imagen</button>
-            <button class="share-btn" id="btnWhatsApp">WhatsApp</button>
-            <button class="share-btn" id="btnTelegram">Telegram</button>
-            <button class="share-btn" id="btnSMS">SMS</button>
-            <button class="share-btn" id="btnEmail">Email</button>
+            <button class="share-btn" id="btnShare">Compartir</button>
             <button class="share-btn" id="btnDownload">Descargar QR</button>
           </div>
 
-          <div style="margin-top:12px; text-align:center;">
-            <button class="share-close" id="btnClose">Cerrar</button>
-          </div>
+          <button class="share-close" id="btnClose">Cerrar</button>
         </div>
       </div>
     `;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-    // Bind events
-    document.getElementById('btnClose').addEventListener('click', () => this.hideModal());
-    document.getElementById('btnShareImage').addEventListener('click', () => this.onShareImage());
-    document.getElementById('btnWhatsApp').addEventListener('click', () => this.onWhatsApp());
-    document.getElementById('btnTelegram').addEventListener('click', () => this.onTelegram());
-    document.getElementById('btnSMS').addEventListener('click', () => this.onSMS());
-    document.getElementById('btnEmail').addEventListener('click', () => this.onEmail());
-    document.getElementById('btnDownload').addEventListener('click', () => this.onDownload());
+    document.body.insertAdjacentHTML("beforeend", modal);
 
-    console.log('[Share] Modal creado y eventos vinculados');
+    document.getElementById("btnShare").addEventListener("click", () => this.onShare());
+    document.getElementById("btnDownload").addEventListener("click", () => this.onDownload());
+    document.getElementById("btnClose").addEventListener("click", () => this.hideModal());
+  }
+
+  updateQRInstance(instance) {
+    this.qrInstance = instance;
+    console.log("[Share] Instancia QR actualizada");
   }
 
   showModal() {
-    const modal = document.getElementById('shareModal');
-    if (!modal) return;
-    modal.classList.remove('hidden');
+    document.getElementById("shareModal").classList.remove("hidden");
   }
 
   hideModal() {
-    const modal = document.getElementById('shareModal');
-    if (!modal) return;
-    modal.classList.add('hidden');
+    document.getElementById("shareModal").classList.add("hidden");
+    document.getElementById("shareMessage").style.display = "none";
   }
 
-  // allow script.js to pass the QR instance (optional)
-  updateQRInstance(qrInstance) {
-    this.qrInstance = qrInstance;
-    console.log('[Share] updateQRInstance llamado. instancia QR actualizada:', !!qrInstance);
+  showWarning(msg) {
+    const el = document.getElementById("shareMessage");
+    el.textContent = msg;
+    el.style.display = "block";
   }
 
-  // Delegadores
-  async onShareImage() {
-    console.log('[Share] onShareImage');
+  async onShare() {
     try {
-      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
-      await window.mobileShareManager.uploadAndShare({ channel: undefined, shareOnlyUrlIfNeeded: false });
-    } catch (err) {
-      console.error('[Share] onShareImage error:', err);
-      alert('Error al compartir imagen. Revisa la consola.');
-    }
-  }
+      console.log("[Share] Compartiendo...");
 
-  async onWhatsApp() {
-    console.log('[Share] onWhatsApp');
-    try {
-      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
-      await window.mobileShareManager.uploadAndShare({ channel: 'whatsapp', preferUrlText: true });
-    } catch (err) {
-      console.error('[Share] onWhatsApp error:', err);
-      alert('Error al preparar WhatsApp. Revisa la consola.');
-    }
-  }
+      if (!navigator.share) {
+        this.showWarning("Tu navegador no permite compartir desde aquí.");
+        return;
+      }
 
-  async onTelegram() {
-    console.log('[Share] onTelegram');
-    try {
-      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
-      await window.mobileShareManager.uploadAndShare({ channel: 'telegram', preferUrlText: true });
-    } catch (err) {
-      console.error('[Share] onTelegram error:', err);
-      alert('Error al preparar Telegram. Revisa la consola.');
-    }
-  }
+      if (!window.qrManager) {
+        this.showWarning("QR no disponible, genera uno primero.");
+        return;
+      }
 
-  async onSMS() {
-    console.log('[Share] onSMS');
-    try {
-      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
-      await window.mobileShareManager.uploadAndShare({ channel: 'sms', preferUrlText: true });
-    } catch (err) {
-      console.error('[Share] onSMS error:', err);
-      alert('Error al preparar SMS. Revisa la consola.');
-    }
-  }
+      const blob = await window.qrManager.getBlob();
+      const file = new File([blob], `QR_Cotizacion.png`, { type: "image/png" });
 
-  async onEmail() {
-    console.log('[Share] onEmail');
-    try {
-      if (!window.mobileShareManager) throw new Error('mobileShareManager no disponible');
-      await window.mobileShareManager.uploadAndShare({ channel: 'email', preferUrlText: true });
+      const nombre = document.getElementById("nombre").value;
+      const movimiento = document.getElementById("movimiento").value;
+      const vehiculo = document.getElementById("vehiculo").value;
+      const costo = document.getElementById("costo").value;
+
+      const text = `
+COTIZACIÓN DE SERVICIO
+
+Vendedor: ${nombre}
+Movimiento: ${movimiento}
+Vehículo: ${vehiculo}
+Costo: $${costo}
+      `;
+
+      let shareData;
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        shareData = { files: [file], text: text.trim(), title: "Cotización" };
+      } else {
+        shareData = { text: text.trim(), title: "Cotización" };
+      }
+
+      await navigator.share(shareData);
+
     } catch (err) {
-      console.error('[Share] onEmail error:', err);
-      alert('Error al preparar correo. Revisa la consola.');
+      console.warn("[Share] No se pudo compartir:", err);
+      this.showWarning("No fue posible compartir en este dispositivo.");
     }
   }
 
   async onDownload() {
-    console.log('[Share] onDownload');
     try {
-      if (!window.qrManager) throw new Error('qrManager no disponible');
+      if (!window.qrManager) {
+        this.showWarning("Debes generar un QR primero.");
+        return;
+      }
+
       const blob = await window.qrManager.getBlob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `QR_Cotizacion_${Date.now()}.png`;
-      document.body.appendChild(a);
+      a.download = "QR_Cotizacion.png";
       a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 30000);
+
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+
     } catch (err) {
-      console.error('[Share] onDownload error:', err);
-      alert('Error al descargar. Revisa la consola.');
+      console.error("[Share] Error al descargar:", err);
+      this.showWarning("Error al descargar la imagen.");
     }
   }
 }
 
-// Exponer singleton
-window.shareManager = window.shareManager || new ShareManager();
-console.log('[Share] shareManager disponible');
+window.shareManager = new ShareManager();
+console.log("[Share] shareManager listo");

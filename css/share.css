@@ -1,48 +1,62 @@
-#shareModal.hidden {
-     display: none; 
+.share-modal.hidden {
+  display: none;
 }
 
-#shareModal { 
-    position: fixed; 
-    inset: 0; 
-    background: rgba(0,0,0,0.6); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    z-index: 2000; 
+.share-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
 
-.modal-content { 
-    background: white; 
-    padding: 20px; 
-    border-radius: 12px; 
-    width: 90%; 
-    max-width: 380px; 
-    text-align: center; 
+.share-modal-backdrop {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
 }
 
-.share-buttons { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 10px; 
-    margin: 15px 0; 
+.share-modal-content {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  z-index: 2;
 }
 
-.btn { 
-    padding: 12px; 
-    border: none; 
-    background: #733298; 
-    color: white; 
-    border-radius: 6px; 
-    font-size: 16px; 
+.share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.close-btn { 
-    background: #444; 
-    color: white; 
-    padding: 10px; 
-    width: 100%; 
-    margin-top: 10px; 
-    border: none; 
-    border-radius: 6px; 
+.share-btn {
+  padding: 12px;
+  background: var(--morado);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.share-close {
+  margin-top: 20px;
+  padding: 10px;
+  background: #ccc;
+  border: none;
+  border-radius: 8px;
+}
+.share-warning {
+  color: #c0392b;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
