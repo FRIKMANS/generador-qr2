@@ -100,7 +100,7 @@ Costo: $${costo}
 
     } catch (err) {
       console.warn("[Share] No se pudo compartir:", err);
-      this.showWarning("No fue posible compartir en este dispositivo.");
+      this.showWarning("No fue posible compartir en este dispositivo o se canceló la acción.");
     }
   }
 
