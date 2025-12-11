@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Generador de QR para Cotizaciones</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/share.css">
-  <link rel="stylesheet" href="css/mobile-share.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Estilos principales -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/share.css" />
+  <link rel="stylesheet" href="css/mobile-share.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
   <div id="notification" class="notification"></div>
@@ -38,23 +40,23 @@
     </select>
 
     <label for="vehiculo" class="requerido">Vehículo:</label>
-    <input type="text" id="vehiculo" placeholder="Ej: Nissan Sentra 2020" required>
+    <input type="text" id="vehiculo" placeholder="Ej: Nissan Sentra 2020" required />
 
     <label for="costo" class="requerido">Costo:</label>
-    <input type="number" id="costo" placeholder="Ej. 1500" min="0" step="0.01" required>
+    <input type="number" id="costo" placeholder="Ej. 1500" min="0" step="0.01" required />
 
     <button onclick="generarQR()">
       <i class="fas fa-qrcode"></i> Generar QR
     </button>
   </div>
 
-  <div id="qrCard" class="qr-card" style="display:none;">
+  <div id="qrCard" class="qr-card" style="display: none;">
     <h2>Tu código QR</h2>
     <div id="qrContainer"></div>
     <p>Escanea este código con un teléfono para registrar la cotización</p>
 
     <div class="qr-actions">
-      <button onclick="mostrarPanelCompartir()" class="btn-share">
+      <button onclick="shareManager.showModal()" class="btn-share">
         <i class="fas fa-share-alt"></i> Compartir
       </button>
       <button onclick="descargarQR()" style="background-color: var(--verde);">
@@ -63,17 +65,16 @@
     </div>
   </div>
 
-  <div id="sharePanelContainer"></div>
 
-  <!-- Librerías y scripts -->
+  <!-- Librerías QR -->
   <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.min.js"></script>
 
+  <!-- Sistema de generación de QR -->
   <script src="js/qr-manaager.js"></script>
-
   <script src="js/script.js"></script>
 
+  <!-- Sistema de compartir -->
   <script src="js/share.js"></script>
-
   <script src="js/mobile-share.js"></script>
 </body>
 </html>
